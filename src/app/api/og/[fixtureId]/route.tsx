@@ -1,18 +1,9 @@
 import { ImageResponse } from 'next/og';
-import { getFixturesForAllCompetitions } from '@/services/fixtures';
-import { getOdds } from '@/services/odds';
-import { getTeamStats } from '@/services/team-stats';
-import { runAnalysis } from '@/lib/analysis/run';
-import { Label } from '@/lib/contracts/pick';
+import { NextRequest } from 'next/server';
 
-export const runtime = 'nodejs';
+export const runtime = 'edge';
 
 type Params = { params: Promise<{ fixtureId: string }> };
-
-const COMPETITION_LABEL: Record<string, string> = {
-  LIGA_MX: 'Liga MX',
-  WC_2026: 'Copa del Mundo 2026',
-};
 
 const MARKET_LABEL: Record<string, string> = {
   MATCH_WINNER: 'Match Winner',
@@ -20,50 +11,42 @@ const MARKET_LABEL: Record<string, string> = {
   OVER_UNDER_25:'Total Goles',
 };
 
-function getBestPick(analysis: ReturnType<typeof runAnalysis>) {
-  for (const target of ['VALUE', 'LEAN'] as Label[]) {
-    for (const market of analysis.markets) {
-      for (const pick of market.picks) {
-        if (pick.label === target) return { pick, market: market.market };
-      }
-    }
-  }
-  return null;
-}
-
-function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleDateString('es-MX', {
-    weekday: 'short', day: 'numeric', month: 'short',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
+interface PickBar { selection: string; modelPct: number; marketPct: number; edgePct: number; }
 
 const SIZE = 1080;
 
-export async function GET(_req: Request, { params }: Params) {
+function edgeColor(e: number) {
+  return e > 5 ? '#00E062' : e > 2 ? '#F5A623' : e < -2 ? '#E53935' : '#6B6F6B';
+}
+
+export async function GET(req: NextRequest, { params }: Params) {
   const { fixtureId } = await params;
+  const p = req.nextUrl.searchParams;
 
-  const fixtures = await getFixturesForAllCompetitions();
-  const fixture  = fixtures.find((f) => f.id === fixtureId);
-  if (!fixture) return new Response('Not found', { status: 404 });
+  const home       = p.get('home')       ?? '';
+  const away       = p.get('away')       ?? '';
+  const homeLogo   = p.get('homeLogo')   ?? '';
+  const awayLogo   = p.get('awayLogo')   ?? '';
+  const competition= p.get('competition')?? '';
+  const kickoff    = p.get('kickoff')    ?? '';
+  const label      = p.get('label')      ?? '';
+  const market     = p.get('market')     ?? '';
+  const pick       = p.get('pick')       ?? '';
+  const odds       = p.get('odds')       ?? '';
+  const edgePct    = parseFloat(p.get('edge')      ?? '0');
+  const modelPct   = parseFloat(p.get('modelPct')  ?? '0');
+  const fairPct    = parseFloat(p.get('fairPct')   ?? '0');
 
-  const [odds, homeStats, awayStats] = await Promise.all([
-    getOdds(fixture),
-    getTeamStats(fixture.homeTeam.id, fixture.competition),
-    getTeamStats(fixture.awayTeam.id, fixture.competition),
-  ]);
+  // bars data: JSON array of {selection,modelPct,marketPct,edgePct}
+  let bars: PickBar[] = [];
+  try { bars = JSON.parse(p.get('bars') ?? '[]'); } catch {}
 
-  const analysis = runAnalysis(fixture, odds, homeStats, awayStats);
-  const best = getBestPick(analysis);
-  const isValue = best?.pick.label === 'VALUE';
-  const accent  = isValue ? '#00E062' : best ? '#F5A623' : '#9A9E9A';
+  const isValue = label === 'VALUE';
+  const accent  = isValue ? '#00E062' : label === 'LEAN' ? '#F5A623' : '#9A9E9A';
+  const hasPick = !!pick;
 
-  // Pick the most relevant market for the bars section
-  const barMarket = analysis.markets.find(m => m.market === best?.market)
-    ?? analysis.markets[0];
-
-  function edgeColor(e: number) {
-    return e > 5 ? '#00E062' : e > 2 ? '#F5A623' : e < -2 ? '#E53935' : '#6B6F6B';
+  if (!home || !away) {
+    return new Response('Missing params', { status: 400 });
   }
 
   return new ImageResponse(
@@ -103,33 +86,27 @@ export async function GET(_req: Request, { params }: Params) {
             <span style={{ color: accent, fontSize: 20, fontWeight: 800, letterSpacing: 3 }}>LÍNEA OCULTA</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
-            <span style={{ color: '#9A9E9A', fontSize: 14, letterSpacing: 1 }}>
-              {(COMPETITION_LABEL[fixture.competition] ?? fixture.competition).toUpperCase()}
-            </span>
-            <span style={{ color: '#6B6F6B', fontSize: 12 }}>{formatDate(fixture.kickoff)}</span>
+            <span style={{ color: '#9A9E9A', fontSize: 14, letterSpacing: 1 }}>{competition.toUpperCase()}</span>
+            <span style={{ color: '#6B6F6B', fontSize: 12 }}>{kickoff}</span>
           </div>
         </div>
 
         {/* TEAMS */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 52px 0', gap: 0 }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, flex: 1 }}>
-            {fixture.homeTeam.logo
-              ? <img src={fixture.homeTeam.logo} width={96} height={96} style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
+            {homeLogo
+              ? <img src={homeLogo} width={96} height={96} style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
               : <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#1E201E' }} />
             }
-            <span style={{ color: '#F0F2F0', fontSize: 26, fontWeight: 700, textAlign: 'center', lineHeight: 1.2 }}>
-              {fixture.homeTeam.name}
-            </span>
+            <span style={{ color: '#F0F2F0', fontSize: 26, fontWeight: 700, textAlign: 'center', lineHeight: 1.2 }}>{home}</span>
           </div>
           <span style={{ color: '#2A2E2A', fontSize: 24, fontWeight: 700, padding: '0 20px' }}>VS</span>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, flex: 1 }}>
-            {fixture.awayTeam.logo
-              ? <img src={fixture.awayTeam.logo} width={96} height={96} style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
+            {awayLogo
+              ? <img src={awayLogo} width={96} height={96} style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
               : <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#1E201E' }} />
             }
-            <span style={{ color: '#F0F2F0', fontSize: 26, fontWeight: 700, textAlign: 'center', lineHeight: 1.2 }}>
-              {fixture.awayTeam.name}
-            </span>
+            <span style={{ color: '#F0F2F0', fontSize: 26, fontWeight: 700, textAlign: 'center', lineHeight: 1.2 }}>{away}</span>
           </div>
         </div>
 
@@ -137,79 +114,76 @@ export async function GET(_req: Request, { params }: Params) {
         <div style={{ margin: '32px 52px 0', height: 1, background: `linear-gradient(to right, transparent, ${accent}44, transparent)` }} />
 
         {/* PICK */}
-        {best ? (
+        {hasPick ? (
           <div style={{
-            margin: '28px 52px 0', padding: '28px 36px',
+            margin: '24px 52px 0', padding: '24px 32px',
             borderRadius: 20,
-            background: isValue ? '#0D1A12CC' : '#1A1610CC',
+            background: isValue ? '#0D1A12DD' : '#1A1610DD',
             border: `1px solid ${accent}44`,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
           }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{
-                  padding: '5px 14px', borderRadius: 7,
+                  padding: '4px 12px', borderRadius: 6,
                   background: `${accent}22`, border: `1px solid ${accent}55`,
-                  color: accent, fontSize: 14, fontWeight: 800, letterSpacing: 1.5,
-                }}>
-                  {best.pick.label}
-                </div>
-                <span style={{ color: '#9A9E9A', fontSize: 13, letterSpacing: 1 }}>
-                  {(MARKET_LABEL[best.market] ?? best.market).toUpperCase()}
+                  color: accent, fontSize: 13, fontWeight: 800, letterSpacing: 1.5,
+                }}>{label}</div>
+                <span style={{ color: '#9A9E9A', fontSize: 12, letterSpacing: 1 }}>
+                  {(MARKET_LABEL[market] ?? market).toUpperCase()}
                 </span>
               </div>
-              <span style={{ color: '#F0F2F0', fontSize: 32, fontWeight: 700, lineHeight: 1.1 }}>
-                {best.pick.selection}
-              </span>
-              <span style={{ color: '#6B6F6B', fontSize: 13 }}>
-                modelo {(best.pick.modelProbability * 100).toFixed(1)}% · mercado {(best.pick.fairProbability * 100).toFixed(1)}%
+              <span style={{ color: '#F0F2F0', fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>{pick}</span>
+              <span style={{ color: '#6B6F6B', fontSize: 12 }}>
+                modelo {modelPct.toFixed(1)}% · mercado {fairPct.toFixed(1)}%
               </span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-              <span style={{ color: accent, fontSize: 80, fontWeight: 900, lineHeight: 1, letterSpacing: -2 }}>
-                {best.pick.oddsAmerican}
-              </span>
-              <span style={{ color: accent, fontSize: 22, fontWeight: 700 }}>
-                {best.pick.edgePct > 0 ? '+' : ''}{best.pick.edgePct.toFixed(1)}% edge
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+              <span style={{ color: accent, fontSize: 72, fontWeight: 900, lineHeight: 1, letterSpacing: -2 }}>{odds}</span>
+              <span style={{ color: accent, fontSize: 20, fontWeight: 700 }}>
+                {edgePct > 0 ? '+' : ''}{edgePct.toFixed(1)}% edge
               </span>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div style={{
+            margin: '24px 52px 0', padding: '32px',
+            borderRadius: 20, border: '1px solid #2A2E2A',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ color: '#6B6F6B', fontSize: 20 }}>Sin valor detectado en este partido</span>
+          </div>
+        )}
 
-        {/* MODELO VS MERCADO */}
-        {barMarket && barMarket.picks.length > 0 && (
-          <div style={{ margin: '24px 52px 0', display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <span style={{ color: '#6B6F6B', fontSize: 11, letterSpacing: 2, marginBottom: 16 }}>
-              MODELO VS MERCADO · {(MARKET_LABEL[barMarket.market] ?? barMarket.market).toUpperCase()}
+        {/* BARS */}
+        {bars.length > 0 && (
+          <div style={{ margin: '20px 52px 0', display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <span style={{ color: '#6B6F6B', fontSize: 11, letterSpacing: 2, marginBottom: 14 }}>
+              MODELO VS MERCADO · {(MARKET_LABEL[market] ?? market).toUpperCase()}
             </span>
-            {barMarket.picks.map((pick) => {
-              const modelPct  = Math.round(pick.modelProbability  * 100);
-              const marketPct = Math.round(pick.fairProbability * 100);
-              const eColor = edgeColor(pick.edgePct);
+            {bars.map((b) => {
+              const eColor = edgeColor(b.edgePct);
               return (
-                <div key={pick.selection} style={{ display: 'flex', flexDirection: 'column', marginBottom: 16 }}>
-                  {/* Label row */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ color: '#C8CCC8', fontSize: 14, fontWeight: 600 }}>{pick.selection}</span>
-                    <span style={{ color: eColor, fontSize: 14, fontWeight: 700 }}>
-                      {pick.edgePct > 0 ? '+' : ''}{pick.edgePct.toFixed(1)}%
+                <div key={b.selection} style={{ display: 'flex', flexDirection: 'column', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+                    <span style={{ color: '#C8CCC8', fontSize: 13, fontWeight: 600 }}>{b.selection}</span>
+                    <span style={{ color: eColor, fontSize: 13, fontWeight: 700 }}>
+                      {b.edgePct > 0 ? '+' : ''}{b.edgePct.toFixed(1)}%
                     </span>
                   </div>
-                  {/* Model bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                    <span style={{ color: '#6B6F6B', fontSize: 11, width: 28, textAlign: 'right' }}>MOD</span>
-                    <div style={{ flex: 1, height: 8, background: '#1E201E', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${modelPct}%`, height: '100%', background: eColor, borderRadius: 4 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                    <span style={{ color: '#6B6F6B', fontSize: 10, width: 26, textAlign: 'right' }}>MOD</span>
+                    <div style={{ flex: 1, height: 7, background: '#1E201E', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${b.modelPct}%`, height: '100%', background: eColor, borderRadius: 3 }} />
                     </div>
-                    <span style={{ color: '#C8CCC8', fontSize: 12, width: 34 }}>{modelPct}%</span>
+                    <span style={{ color: '#C8CCC8', fontSize: 11, width: 30 }}>{Math.round(b.modelPct)}%</span>
                   </div>
-                  {/* Market bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ color: '#6B6F6B', fontSize: 11, width: 28, textAlign: 'right' }}>MKT</span>
-                    <div style={{ flex: 1, height: 8, background: '#1E201E', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${marketPct}%`, height: '100%', background: '#3A3E3A', borderRadius: 4 }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: '#6B6F6B', fontSize: 10, width: 26, textAlign: 'right' }}>MKT</span>
+                    <div style={{ flex: 1, height: 7, background: '#1E201E', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${b.marketPct}%`, height: '100%', background: '#3A3E3A', borderRadius: 3 }} />
                     </div>
-                    <span style={{ color: '#6B6F6B', fontSize: 12, width: 34 }}>{marketPct}%</span>
+                    <span style={{ color: '#6B6F6B', fontSize: 11, width: 30 }}>{Math.round(b.marketPct)}%</span>
                   </div>
                 </div>
               );
@@ -218,9 +192,9 @@ export async function GET(_req: Request, { params }: Params) {
         )}
 
         {/* FOOTER */}
-        <div style={{ marginTop: 'auto', padding: '0 52px 36px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ color: '#3A3E3A', fontSize: 12 }}>linea-oculta-v4.vercel.app</span>
-          <span style={{ color: '#3A3E3A', fontSize: 12 }}>Análisis estadístico · Sin garantías</span>
+        <div style={{ position: 'absolute', bottom: 32, left: 52, right: 52, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ color: '#3A3E3A', fontSize: 11 }}>linea-oculta-v4.vercel.app</span>
+          <span style={{ color: '#3A3E3A', fontSize: 11 }}>Análisis estadístico · Sin garantías</span>
         </div>
       </div>
     ),

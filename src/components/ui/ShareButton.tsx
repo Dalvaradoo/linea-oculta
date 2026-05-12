@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from 'motion/react';
 interface Props {
   fixtureId: string;
   matchTitle: string;
+  ogUrl: string;
 }
 
-export function ShareButton({ fixtureId, matchTitle }: Props) {
+export function ShareButton({ fixtureId, matchTitle, ogUrl }: Props) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -20,7 +21,7 @@ export function ShareButton({ fixtureId, matchTitle }: Props) {
     if (open) { setImgLoaded(false); setImgError(false); }
   }, [open]);
 
-  const imageUrl = `/api/og/${fixtureId}`;
+  const imageUrl = ogUrl;
   const matchUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/match/${fixtureId}`
     : `/match/${fixtureId}`;

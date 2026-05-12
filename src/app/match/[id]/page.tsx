@@ -25,19 +25,55 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!fixture) return {};
 
   const title = `${fixture.homeTeam.name} vs ${fixture.awayTeam.name} · Línea Oculta`;
-  const ogImage = `${BASE_URL}/api/og/${id}`;
+
+  // Build OG URL with all data so the image route needs no API calls
+  const [odds, homeStats, awayStats] = await Promise.all([
+    getOdds(fixture),
+    getTeamStats(fixture.homeTeam.id, fixture.competition),
+    getTeamStats(fixture.awayTeam.id, fixture.competition),
+  ]);
+  const analysis = runAnalysis(fixture, odds, homeStats, awayStats);
+  const bestPick = (() => {
+    for (const t of ['VALUE', 'LEAN'] as const) {
+      for (const m of analysis.markets) {
+        for (const p of m.picks) {
+          if (p.label === t) return { p, m: m.market, picks: m.picks };
+        }
+      }
+    }
+    return null;
+  })();
+
+  const ogParams = new URLSearchParams({
+    home:        fixture.homeTeam.name,
+    away:        fixture.awayTeam.name,
+    homeLogo:    fixture.homeTeam.logo ?? '',
+    awayLogo:    fixture.awayTeam.logo ?? '',
+    competition: (COMPETITION_LABEL[fixture.competition] ?? fixture.competition),
+    kickoff:     new Date(fixture.kickoff).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+    ...(bestPick ? {
+      label:     bestPick.p.label,
+      market:    bestPick.m,
+      pick:      bestPick.p.selection,
+      odds:      bestPick.p.oddsAmerican,
+      edge:      String(bestPick.p.edgePct),
+      modelPct:  String(bestPick.p.modelProbability * 100),
+      fairPct:   String(bestPick.p.fairProbability * 100),
+      bars:      JSON.stringify(bestPick.picks.map(pk => ({
+        selection: pk.selection,
+        modelPct:  pk.modelProbability * 100,
+        marketPct: pk.fairProbability * 100,
+        edgePct:   pk.edgePct,
+      }))),
+    } : {}),
+  });
+
+  const ogImage = `${BASE_URL}/api/og/${id}?${ogParams.toString()}`;
 
   return {
     title,
-    openGraph: {
-      title,
-      images: [{ url: ogImage, width: 1080, height: 1080 }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      images: [ogImage],
-    },
+    openGraph: { title, images: [{ url: ogImage, width: 1080, height: 1080 }] },
+    twitter:   { card: 'summary_large_image', title, images: [ogImage] },
   };
 }
 
@@ -97,6 +133,38 @@ export default async function MatchPage({ params }: Params) {
   const analysis = runAnalysis(fixture, odds, homeStats, awayStats);
   const otherFixtures = competitionFixtures.filter((f) => f.id !== id).slice(0, 6);
 
+  // Build OG image URL with pre-computed data (no API calls in the edge route)
+  const bestPickForOg = (() => {
+    for (const t of ['VALUE', 'LEAN'] as const) {
+      for (const m of analysis.markets) {
+        for (const p of m.picks) {
+          if (p.label === t) return { p, m: m.market, picks: m.picks };
+        }
+      }
+    }
+    return null;
+  })();
+  const ogParams = new URLSearchParams({
+    home: fixture.homeTeam.name, away: fixture.awayTeam.name,
+    homeLogo: fixture.homeTeam.logo ?? '', awayLogo: fixture.awayTeam.logo ?? '',
+    competition: COMPETITION_LABEL[fixture.competition] ?? fixture.competition,
+    kickoff: new Date(fixture.kickoff).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+    ...(bestPickForOg ? {
+      label: bestPickForOg.p.label, market: bestPickForOg.m,
+      pick: bestPickForOg.p.selection, odds: bestPickForOg.p.oddsAmerican,
+      edge: String(bestPickForOg.p.edgePct),
+      modelPct: String(bestPickForOg.p.modelProbability * 100),
+      fairPct: String(bestPickForOg.p.fairProbability * 100),
+      bars: JSON.stringify(bestPickForOg.picks.map(pk => ({
+        selection: pk.selection,
+        modelPct: pk.modelProbability * 100,
+        marketPct: pk.fairProbability * 100,
+        edgePct: pk.edgePct,
+      }))),
+    } : {}),
+  });
+  const ogUrl = `/api/og/${id}?${ogParams.toString()}`;
+
   const oddsUnavailable = analysis.dataAvailability.odds === 'NOT_AVAILABLE';
   const statsInsufficient =
     analysis.dataAvailability.homeStats === 'INSUFFICIENT' ||
@@ -114,6 +182,7 @@ export default async function MatchPage({ params }: Params) {
           <ShareButton
             fixtureId={id}
             matchTitle={`${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`}
+            ogUrl={ogUrl}
           />
         </div>
         <p className="text-[17px] font-mono text-[#6B6F6B]">{formatKickoff(fixture.kickoff)}</p>
