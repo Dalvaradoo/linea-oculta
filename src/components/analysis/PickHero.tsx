@@ -46,12 +46,12 @@ export function PickHero({ fixture, analysis }: Props) {
               <Image src={fixture.homeTeam.logo} alt={fixture.homeTeam.name} width={50} height={50} className="object-contain" />
             </div>
           )}
-          <span className="text-[19px] md:text-[18px] font-semibold text-[#F0F2F0] leading-tight truncate">
+          <span className="text-[18px] md:text-[17px] font-semibold text-[#F0F2F0] leading-tight truncate">
             {fixture.homeTeam.name}
           </span>
         </div>
 
-        <span className="text-[12px] font-mono text-[#6B6F6B] flex-shrink-0 px-1">vs</span>
+        <span className="text-[11px] font-mono text-[#6B6F6B] flex-shrink-0 px-1">vs</span>
 
         {/* Away */}
         <div className="flex items-center gap-2 md:gap-3 flex-row-reverse min-w-0 flex-1">
@@ -60,7 +60,7 @@ export function PickHero({ fixture, analysis }: Props) {
               <Image src={fixture.awayTeam.logo} alt={fixture.awayTeam.name} width={50} height={50} className="object-contain" />
             </div>
           )}
-          <span className="text-[19px] md:text-[18px] font-semibold text-[#F0F2F0] leading-tight truncate text-right">
+          <span className="text-[18px] md:text-[17px] font-semibold text-[#F0F2F0] leading-tight truncate text-right">
             {fixture.awayTeam.name}
           </span>
         </div>
@@ -71,7 +71,7 @@ export function PickHero({ fixture, analysis }: Props) {
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <LabelBadge label={pick.label} />
-            <span className="text-[12px] font-mono text-[#9A9E9A] uppercase tracking-wider">
+            <span className="text-[11px] font-mono text-[#9A9E9A] uppercase tracking-wider">
               {MARKET_LABEL[market] ?? market}
             </span>
           </div>
@@ -80,7 +80,7 @@ export function PickHero({ fixture, analysis }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <ConfidenceBadge level={pick.confidence} />
-            <span className="text-[19px] font-mono text-[#9A9E9A]">{pick.confidence} confidence</span>
+            <span className="text-[18px] font-mono text-[#9A9E9A]">{pick.confidence} confidence</span>
           </div>
         </div>
 
@@ -90,12 +90,12 @@ export function PickHero({ fixture, analysis }: Props) {
           </div>
           <div className="md:mt-2">
             <div
-              className="text-[18px] md:text-[19px] font-mono tabular-nums font-semibold"
+              className="text-[17px] md:text-[18px] font-mono tabular-nums font-semibold"
               style={{ color: pick.edgePct > 5 ? '#00E062' : pick.edgePct > 2 ? '#F5A623' : '#9A9E9A' }}
             >
               {pick.edgePct > 0 ? '+' : ''}{pick.edgePct.toFixed(1)}% edge
             </div>
-            <div className="text-[18px] md:text-[19px] font-mono text-[#6B6F6B] mt-0.5">
+            <div className="text-[17px] md:text-[18px] font-mono text-[#6B6F6B] mt-0.5">
               modelo {(pick.modelProbability * 100).toFixed(1)}% · mercado {(pick.fairProbability * 100).toFixed(1)}%
             </div>
           </div>

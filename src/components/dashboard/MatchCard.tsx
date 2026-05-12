@@ -52,7 +52,7 @@ const COMPETITION_LABEL: Record<string, string> = {
 function TeamLogo({ src, name }: { src?: string; name: string }) {
   if (!src) {
     return (
-      <div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center text-[19px] font-mono text-[#9A9E9A]">
+      <div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center text-[18px] font-mono text-[#9A9E9A]">
         {name.slice(0, 2).toUpperCase()}
       </div>
     );
@@ -104,11 +104,11 @@ export function MatchCard({ fixture, analysis }: Props) {
         <div className={`p-4 md:p-5 ${isValue ? 'glass-value' : 'glass'}`}>
           {/* Competition + time */}
           <div className="flex items-center justify-between mb-4">
-            <span className="text-[13px] font-mono text-[#9A9E9A] uppercase tracking-widest">
+            <span className="text-[12px] font-mono text-[#9A9E9A] uppercase tracking-widest">
               {COMPETITION_LABEL[fixture.competition] ?? fixture.competition}
               {fixture.round ? ` · ${fixture.round}` : ''}
             </span>
-            <span className="text-[18px] font-mono text-[#6B6F6B]">
+            <span className="text-[17px] font-mono text-[#6B6F6B]">
               {formatKickoff(fixture.kickoff)}
             </span>
           </div>
@@ -117,14 +117,14 @@ export function MatchCard({ fixture, analysis }: Props) {
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <TeamLogo src={fixture.homeTeam.logo} name={fixture.homeTeam.name} />
-              <span className="text-[18px] font-semibold text-[#F0F2F0] truncate leading-tight">
+              <span className="text-[17px] font-semibold text-[#F0F2F0] truncate leading-tight">
                 {fixture.homeTeam.name}
               </span>
             </div>
-            <span className="text-[19px] font-mono text-[#3A3E3A] flex-shrink-0">vs</span>
+            <span className="text-[18px] font-mono text-[#3A3E3A] flex-shrink-0">vs</span>
             <div className="flex items-center gap-3 flex-1 min-w-0 flex-row-reverse">
               <TeamLogo src={fixture.awayTeam.logo} name={fixture.awayTeam.name} />
-              <span className="text-[18px] font-semibold text-[#F0F2F0] truncate text-right leading-tight">
+              <span className="text-[17px] font-semibold text-[#F0F2F0] truncate text-right leading-tight">
                 {fixture.awayTeam.name}
               </span>
             </div>
@@ -132,23 +132,23 @@ export function MatchCard({ fixture, analysis }: Props) {
 
           {/* Pick or status */}
           {!hasData ? (
-            <div className="text-[19px] font-mono text-[#6B6F6B]">Sin cuotas disponibles</div>
+            <div className="text-[18px] font-mono text-[#6B6F6B]">Sin cuotas disponibles</div>
           ) : bestPick ? (
             <div className="flex items-center gap-3">
               <LabelBadge label={bestPick.label} />
-              <span className="text-[19px] text-[#D0D4D0] font-medium">{bestPick.selection}</span>
-              <span className="text-[18px] font-mono text-[#6B6F6B]">
+              <span className="text-[18px] text-[#D0D4D0] font-medium">{bestPick.selection}</span>
+              <span className="text-[17px] font-mono text-[#6B6F6B]">
                 {MARKET_SHORT[bestPick.market] ?? ''}
               </span>
               <div className="ml-auto flex items-center gap-3">
-                <span className={`text-[18px] font-mono font-bold tabular-nums ${isValue ? 'text-[#00E062]' : 'text-[#F0F2F0]'}`}>
+                <span className={`text-[17px] font-mono font-bold tabular-nums ${isValue ? 'text-[#00E062]' : 'text-[#F0F2F0]'}`}>
                   {bestPick.oddsAmerican}
                 </span>
                 <ConfidenceBadge level={bestPick.confidence} />
               </div>
             </div>
           ) : (
-            <div className="text-[19px] font-mono text-[#6B6F6B]">Sin valor detectado</div>
+            <div className="text-[18px] font-mono text-[#6B6F6B]">Sin valor detectado</div>
           )}
 
           {/* Expand on hover */}
@@ -165,15 +165,15 @@ export function MatchCard({ fixture, analysis }: Props) {
                   {allPicks.slice(0, 4).map((p, i) => (
                     <div key={i} className="flex items-center gap-2.5">
                       <LabelBadge label={p.label} />
-                      <span className="text-[18px] text-[#9A9E9A] flex-1">{p.selection}</span>
-                      <span className="font-mono text-[18px] text-[#6B6F6B]">{p.marketShort}</span>
+                      <span className="text-[17px] text-[#9A9E9A] flex-1">{p.selection}</span>
+                      <span className="font-mono text-[17px] text-[#6B6F6B]">{p.marketShort}</span>
                       <span
-                        className="font-mono tabular-nums text-[19px] w-14 text-right font-medium"
+                        className="font-mono tabular-nums text-[18px] w-14 text-right font-medium"
                         style={{ color: p.edgePct > 5 ? '#00E062' : p.edgePct > 2 ? '#F5A623' : '#6B6F6B' }}
                       >
                         {p.edgePct > 0 ? '+' : ''}{p.edgePct.toFixed(1)}%
                       </span>
-                      <span className="font-mono text-[19px] text-[#F0F2F0] tabular-nums font-semibold">{p.oddsAmerican}</span>
+                      <span className="font-mono text-[18px] text-[#F0F2F0] tabular-nums font-semibold">{p.oddsAmerican}</span>
                     </div>
                   ))}
                 </div>

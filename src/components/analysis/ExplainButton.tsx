@@ -34,20 +34,20 @@ export function ExplainButton({ fixtureId, market, selection }: Props) {
       {state === 'idle' && (
         <button
           onClick={handleExplain}
-          className="text-[18px] font-mono text-[#404040] hover:text-[#787878] transition-colors cursor-pointer underline underline-offset-2"
+          className="text-[17px] font-mono text-[#404040] hover:text-[#787878] transition-colors cursor-pointer underline underline-offset-2"
         >
           explicar
         </button>
       )}
 
       {state === 'loading' && (
-        <span className="text-[18px] font-mono text-[#404040] animate-pulse">
+        <span className="text-[17px] font-mono text-[#404040] animate-pulse">
           analizando...
         </span>
       )}
 
       {state === 'error' && (
-        <span className="text-[18px] font-mono text-[#404040]">
+        <span className="text-[17px] font-mono text-[#404040]">
           explicación no disponible
         </span>
       )}

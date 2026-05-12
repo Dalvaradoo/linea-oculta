@@ -32,7 +32,7 @@ function MatchItem({ fixture, active }: { fixture: NormalizedFixture; active: bo
         ) : (
           <div className="w-4 h-4 rounded-full bg-[#2E302E] flex-shrink-0" />
         )}
-        <span className="text-[19px] text-[#D0D4D0] truncate leading-tight">{fixture.homeTeam.name}</span>
+        <span className="text-[18px] text-[#D0D4D0] truncate leading-tight">{fixture.homeTeam.name}</span>
       </div>
       <div className="flex items-center gap-2 mb-2">
         {fixture.awayTeam.logo ? (
@@ -40,9 +40,9 @@ function MatchItem({ fixture, active }: { fixture: NormalizedFixture; active: bo
         ) : (
           <div className="w-4 h-4 rounded-full bg-[#2E302E] flex-shrink-0" />
         )}
-        <span className="text-[19px] text-[#D0D4D0] truncate leading-tight">{fixture.awayTeam.name}</span>
+        <span className="text-[18px] text-[#D0D4D0] truncate leading-tight">{fixture.awayTeam.name}</span>
       </div>
-      <div className="text-[19px] font-mono text-[#6B6F6B]">{formatTime(fixture.kickoff)}</div>
+      <div className="text-[18px] font-mono text-[#6B6F6B]">{formatTime(fixture.kickoff)}</div>
     </Link>
   );
 }
@@ -80,19 +80,19 @@ export function Sidebar() {
               <ellipse cx="12" cy="18" rx="8" ry="3" stroke="#00E062" strokeWidth="1.2" fill="none" />
             </svg>
           </div>
-          <span className="text-[18px] font-mono font-bold tracking-tight text-chrome-green">LÍNEA OCULTA</span>
+          <span className="text-[17px] font-mono font-bold tracking-tight text-chrome-green">LÍNEA OCULTA</span>
         </Link>
       </div>
 
       {/* League tabs */}
       <div className="px-3 pt-4 pb-2">
-        <div className="text-[13px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-2.5">Competencia</div>
+        <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-2.5">Competencia</div>
         <div className="flex flex-col gap-1">
           {LEAGUES.map((l) => (
             <button
               key={l.key}
               onClick={() => setActiveLeague(l.key)}
-              className={`text-left px-3 py-2.5 rounded-md text-[19px] font-mono transition-all duration-150 cursor-pointer ${
+              className={`text-left px-3 py-2.5 rounded-md text-[18px] font-mono transition-all duration-150 cursor-pointer ${
                 activeLeague === l.key
                   ? 'glass text-[#F0F2F0]'
                   : 'text-[#9A9E9A] hover:text-[#D0D4D0] hover:bg-white/[0.04]'
@@ -106,7 +106,7 @@ export function Sidebar() {
 
       {/* Match list */}
       <div className="flex-1 overflow-y-auto px-2 pb-4">
-        <div className="text-[13px] font-mono text-[#6B6F6B] uppercase tracking-widest px-1 py-3">
+        <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-widest px-1 py-3">
           Próximos partidos
         </div>
         {loading ? (
@@ -116,7 +116,7 @@ export function Sidebar() {
             ))}
           </div>
         ) : fixtures.length === 0 ? (
-          <p className="text-[18px] font-mono text-[#6B6F6B] px-1 leading-relaxed">
+          <p className="text-[17px] font-mono text-[#6B6F6B] px-1 leading-relaxed">
             No hay partidos próximos.
           </p>
         ) : (

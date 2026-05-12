@@ -62,13 +62,13 @@ export function ExplanationPanel({ analysis, fixtureId }: Props) {
 
   return (
     <div>
-      <div className="text-[13px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-3">
+      <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-3">
         Explicación IA
       </div>
 
       <div className="mb-3">
-        <span className="text-[16px] font-mono text-[#C8CCC8] font-medium">{best.pick.selection}</span>
-        <span className="text-[14px] font-mono text-[#6B6F6B]"> · {MARKET_LABEL[best.market] ?? best.market}</span>
+        <span className="text-[15px] font-mono text-[#C8CCC8] font-medium">{best.pick.selection}</span>
+        <span className="text-[13px] font-mono text-[#6B6F6B]"> · {MARKET_LABEL[best.market] ?? best.market}</span>
       </div>
 
       {loading && (
@@ -80,11 +80,11 @@ export function ExplanationPanel({ analysis, fixtureId }: Props) {
       )}
 
       {error && (
-        <p className="text-[14px] font-mono text-[#6B6F6B]">Explicación no disponible.</p>
+        <p className="text-[13px] font-mono text-[#6B6F6B]">Explicación no disponible.</p>
       )}
 
       {text && !loading && (
-        <p className="text-[16px] text-[#B8BCB8] leading-relaxed">{text}</p>
+        <p className="text-[15px] text-[#B8BCB8] leading-relaxed">{text}</p>
       )}
     </div>
   );

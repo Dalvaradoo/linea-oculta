@@ -41,7 +41,7 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
           {/* ── DESKTOP TABLE (md+) ── */}
           <div className="hidden md:block">
             {/* Header */}
-            <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-5 items-center px-4 py-2 text-[13px] font-mono text-[#6B6F6B] uppercase tracking-wider border-b border-white/[0.07] mb-1">
+            <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-5 items-center px-4 py-2 text-[12px] font-mono text-[#6B6F6B] uppercase tracking-wider border-b border-white/[0.07] mb-1">
               <span>Selección</span>
               <span className="text-right">Momio</span>
               <span className="text-right">P. Impl</span>
@@ -57,33 +57,33 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <LabelBadge label={pick.label} />
-                  <span className="text-[18px] text-[#E8ECE8] truncate">{pick.selection}</span>
+                  <span className="text-[17px] text-[#E8ECE8] truncate">{pick.selection}</span>
                   <ConfidenceBadge level={pick.confidence} />
                 </div>
-                <span className="font-mono text-[18px] font-semibold text-[#F0F2F0] text-right tabular-nums">
+                <span className="font-mono text-[17px] font-semibold text-[#F0F2F0] text-right tabular-nums">
                   {pick.oddsAmerican}
                 </span>
                 <AnimatedNumber
                   value={pick.impliedProbability * 100}
                   format={(n) => `${n.toFixed(1)}%`}
-                  className="font-mono text-[19px] text-[#9A9E9A] text-right tabular-nums block"
+                  className="font-mono text-[18px] text-[#9A9E9A] text-right tabular-nums block"
                 />
                 <AnimatedNumber
                   value={pick.fairProbability * 100}
                   format={(n) => `${n.toFixed(1)}%`}
-                  className="font-mono text-[19px] text-[#9A9E9A] text-right tabular-nums block"
+                  className="font-mono text-[18px] text-[#9A9E9A] text-right tabular-nums block"
                 />
                 <AnimatedNumber
                   value={pick.modelProbability * 100}
                   format={(n) => `${n.toFixed(1)}%`}
-                  className="font-mono text-[19px] text-[#E8ECE8] text-right tabular-nums block font-medium"
+                  className="font-mono text-[18px] text-[#E8ECE8] text-right tabular-nums block font-medium"
                 />
                 <div className="flex items-center gap-2 justify-end">
                   <EdgeBar edgePct={pick.edgePct} />
                   <AnimatedNumber
                     value={pick.edgePct}
                     format={(n) => `${n > 0 ? '+' : ''}${n.toFixed(1)}%`}
-                    className="font-mono text-[19px] text-right tabular-nums w-14 block font-medium"
+                    className="font-mono text-[18px] text-right tabular-nums w-14 block font-medium"
                     style={{ color: edgeColor(pick.edgePct) } as React.CSSProperties}
                   />
                 </div>
@@ -101,7 +101,7 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
                 {/* Row 1: label + name + confidence */}
                 <div className="flex items-center gap-2 mb-3">
                   <LabelBadge label={pick.label} />
-                  <span className="text-[19px] text-[#E8ECE8] font-medium flex-1 min-w-0 truncate">
+                  <span className="text-[18px] text-[#E8ECE8] font-medium flex-1 min-w-0 truncate">
                     {pick.selection}
                   </span>
                   <ConfidenceBadge level={pick.confidence} />
@@ -109,21 +109,21 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
                 {/* Row 2: odds | model | edge */}
                 <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Momio</div>
-                    <div className="text-[18px] font-mono font-bold text-[#F0F2F0] tabular-nums">
+                    <div className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Momio</div>
+                    <div className="text-[17px] font-mono font-bold text-[#F0F2F0] tabular-nums">
                       {pick.oddsAmerican}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Modelo</div>
-                    <div className="text-[18px] font-mono font-semibold text-[#E8ECE8] tabular-nums">
+                    <div className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Modelo</div>
+                    <div className="text-[17px] font-mono font-semibold text-[#E8ECE8] tabular-nums">
                       {(pick.modelProbability * 100).toFixed(1)}%
                     </div>
                   </div>
                   <div>
-                    <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Edge</div>
+                    <div className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Edge</div>
                     <div
-                      className="text-[18px] font-mono font-bold tabular-nums"
+                      className="text-[17px] font-mono font-bold tabular-nums"
                       style={{ color: edgeColor(pick.edgePct) }}
                     >
                       {pick.edgePct > 0 ? '+' : ''}{pick.edgePct.toFixed(1)}%
@@ -141,7 +141,7 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
                       }}
                     />
                   </div>
-                  <span className="text-[19px] font-mono text-[#6B6F6B]">
+                  <span className="text-[18px] font-mono text-[#6B6F6B]">
                     mkt {(pick.fairProbability * 100).toFixed(0)}%
                   </span>
                 </div>

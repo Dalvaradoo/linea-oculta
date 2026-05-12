@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -12,6 +13,33 @@ import { DataUnavailable } from '@/components/ui/DataUnavailable';
 import { NormalizedFixture } from '@/lib/contracts/fixture';
 
 type Params = { params: Promise<{ id: string }> };
+
+const BASE_URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000';
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { id } = await params;
+  const fixtures = await getFixturesForAllCompetitions();
+  const fixture = fixtures.find((f) => f.id === id);
+  if (!fixture) return {};
+
+  const title = `${fixture.homeTeam.name} vs ${fixture.awayTeam.name} · Línea Oculta`;
+  const ogImage = `${BASE_URL}/api/og/${id}`;
+
+  return {
+    title,
+    openGraph: {
+      title,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      images: [ogImage],
+    },
+  };
+}
 
 function formatKickoff(date: Date | string): string {
   return new Date(date).toLocaleDateString('es-MX', {
@@ -39,7 +67,7 @@ function OtherMatchRow({ fixture }: { fixture: NormalizedFixture }) {
           {fixture.homeTeam.name}
         </span>
       </div>
-      <span className="text-[18px] font-mono text-[#404040] flex-shrink-0">vs</span>
+      <span className="text-[17px] font-mono text-[#404040] flex-shrink-0">vs</span>
       <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
         <span className="text-xs text-[#787878] group-hover:text-[#C0C0C0] transition-colors truncate text-right">
           {fixture.awayTeam.name}
@@ -78,13 +106,13 @@ export default async function MatchPage({ params }: Params) {
     <div className="px-4 py-5 md:px-6 md:py-6">
       {/* Match meta */}
       <div className="mb-6">
-        <div className="text-[12px] font-mono text-[#9A9E9A] uppercase tracking-widest mb-1.5">
+        <div className="text-[11px] font-mono text-[#9A9E9A] uppercase tracking-widest mb-1.5">
           {COMPETITION_LABEL[fixture.competition] ?? fixture.competition}
           {fixture.round ? ` · ${fixture.round}` : ''}
         </div>
-        <p className="text-[18px] font-mono text-[#6B6F6B]">{formatKickoff(fixture.kickoff)}</p>
+        <p className="text-[17px] font-mono text-[#6B6F6B]">{formatKickoff(fixture.kickoff)}</p>
         {fixture.venue && (
-          <p className="text-[19px] font-mono text-[#6B6F6B] mt-0.5">{fixture.venue}</p>
+          <p className="text-[18px] font-mono text-[#6B6F6B] mt-0.5">{fixture.venue}</p>
         )}
       </div>
 
@@ -107,7 +135,7 @@ export default async function MatchPage({ params }: Params) {
           <PickHero fixture={fixture} analysis={analysis} />
 
           <div>
-            <div className="text-[12px] font-mono text-[#9A9E9A] uppercase tracking-widest mb-5">
+            <div className="text-[11px] font-mono text-[#9A9E9A] uppercase tracking-widest mb-5">
               Todos los mercados · {analysis.modelVersion}
             </div>
             <MarketBreakdown markets={analysis.markets} />
@@ -115,7 +143,7 @@ export default async function MatchPage({ params }: Params) {
 
           {/* Trace panels */}
           <div>
-            <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-3">
+            <div className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-3">
               Trazabilidad del modelo
             </div>
             <div className="space-y-2">
@@ -137,7 +165,7 @@ export default async function MatchPage({ params }: Params) {
       {/* Other matches in same competition */}
       {otherFixtures.length > 0 && (
         <div className="mt-10">
-          <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-2">
+          <div className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-2">
             Otros partidos · {COMPETITION_LABEL[fixture.competition] ?? fixture.competition}
           </div>
           <div className="space-y-0.5">
@@ -150,7 +178,7 @@ export default async function MatchPage({ params }: Params) {
 
       {/* Footer */}
       <footer className="mt-10 pt-4 border-t border-[#1E1E1E]">
-        <p className="text-[19px] font-mono text-[#6B6F6B] leading-relaxed">
+        <p className="text-[18px] font-mono text-[#6B6F6B] leading-relaxed">
           Línea Oculta es una herramienta de análisis estadístico. No garantiza resultados.
           Las probabilidades son estimaciones basadas en datos históricos. Juega responsablemente.
         </p>

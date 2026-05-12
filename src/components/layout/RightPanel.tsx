@@ -29,7 +29,7 @@ export function RightPanel() {
   if (!fixtureId) {
     return (
       <aside className={`${panelBase} flex items-center justify-center`} style={panelBg}>
-        <p className="text-[19px] font-mono text-white/20 text-center px-6 leading-relaxed">
+        <p className="text-[18px] font-mono text-white/20 text-center px-6 leading-relaxed">
           Selecciona un<br />partido para ver<br />el análisis
         </p>
       </aside>
@@ -60,7 +60,7 @@ export function RightPanel() {
   if (!analysis || !analysis.markets.length) {
     return (
       <aside className={`${panelBase} flex items-center justify-center`} style={panelBg}>
-        <p className="text-[19px] font-mono text-white/20 text-center">Sin datos de análisis</p>
+        <p className="text-[18px] font-mono text-white/20 text-center">Sin datos de análisis</p>
       </aside>
     );
   }
