@@ -20,9 +20,25 @@ function isOver25(outcome: ApiOutcome): boolean {
   return outcome.point === 2.5;
 }
 
+function mapH2HLabel(
+  name: string,
+  homeTeam: string,
+  awayTeam: string
+): OddsSelection['label'] {
+  if (name === 'Draw') return 'Draw';
+  if (name === homeTeam) return 'Home';
+  if (name === awayTeam) return 'Away';
+  // fuzzy fallback
+  const n = name.toLowerCase();
+  if (homeTeam.toLowerCase().includes(n) || n.includes(homeTeam.toLowerCase())) return 'Home';
+  return 'Away';
+}
+
 function buildSelections(
   market: ApiMarket,
-  marketType: MarketType
+  marketType: MarketType,
+  homeTeam = '',
+  awayTeam = ''
 ): OddsSelection[] | null {
   let outcomes = market.outcomes;
 
@@ -33,10 +49,17 @@ function buildSelections(
 
   if (outcomes.length < EXPECTED_SELECTIONS[marketType]) return null;
 
-  const raw = outcomes.map((o) => ({
-    label: o.name as OddsSelection['label'],
-    odds: o.price,
-  }));
+  const raw = outcomes.map((o) => {
+    let label: OddsSelection['label'];
+    if (marketType === 'MATCH_WINNER') {
+      label = mapH2HLabel(o.name, homeTeam, awayTeam);
+    } else if (marketType === 'OVER_UNDER_25') {
+      label = o.name.toLowerCase().startsWith('over') ? 'Over 2.5' : 'Under 2.5';
+    } else {
+      label = o.name as OddsSelection['label'];
+    }
+    return { label, odds: o.price };
+  });
 
   const withFair = calculateFairProbabilities(raw);
   const overround = calculateOverround(raw.map((r) => r.odds));
@@ -59,10 +82,47 @@ function bestBookmaker(bookmakers: ApiBookmaker[], marketKey: string): ApiMarket
   return null;
 }
 
+// Normalize team name for fuzzy matching: lowercase, strip accents, remove common suffixes
+function normalizeTeamName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\b(fc|cf|sc|ac|cd|ud|club|atletico|deportivo|chivas|pumas|tigres|unam|uanl)\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function teamNamesMatch(a: string, b: string): boolean {
+  const na = normalizeTeamName(a);
+  const nb = normalizeTeamName(b);
+  return na.includes(nb) || nb.includes(na) || na === nb;
+}
+
+function findMatchingEvent(
+  events: ApiOddsEvent[],
+  homeTeamName: string,
+  awayTeamName: string,
+  kickoff: Date | string
+): ApiOddsEvent | null {
+  const kickoffDate = new Date(kickoff).toISOString().split('T')[0];
+  return events.find((e) => {
+    const eventDate = new Date(e.commence_time).toISOString().split('T')[0];
+    return (
+      eventDate === kickoffDate &&
+      teamNamesMatch(e.home_team, homeTeamName) &&
+      teamNamesMatch(e.away_team, awayTeamName)
+    );
+  }) ?? null;
+}
+
 export async function fetchOdds(
   fixtureId: string,
   competition: Competition,
-  apiKey: string
+  apiKey: string,
+  homeTeamName?: string,
+  awayTeamName?: string,
+  kickoff?: Date | string
 ): Promise<NormalizedOdds> {
   const sportKey = THE_ODDS_API_KEYS[competition];
   const unavailable: NormalizedOdds = {
@@ -76,25 +136,28 @@ export async function fetchOdds(
 
   let events: ApiOddsEvent[];
   try {
+    // btts is not universally supported — query h2h+totals first, btts separately
     events = await oddsFetch<ApiOddsEvent[]>(
       `/sports/${sportKey}/odds`,
-      { regions: 'us,eu', markets: 'h2h,totals,btts', oddsFormat: 'decimal' },
+      { regions: 'us,eu', markets: 'h2h,totals', oddsFormat: 'decimal' },
       apiKey
     );
-  } catch {
+  } catch (err) {
+    console.error('[the-odds-api] oddsFetch failed:', err);
     return unavailable;
   }
 
-  // The Odds API doesn't filter by fixture ID — match by team names is unreliable.
-  // We store the fixtureId for correlation but fetch the full event list.
-  // Services layer is responsible for matching event to fixture.
-  // Here we return the raw event list wrapped in a NormalizedOdds per event.
-  // For now, return NOT_AVAILABLE so the service can match by event ID later.
-  // TODO Phase 2: implement event-to-fixture ID mapping
   if (!events.length) return unavailable;
 
-  // Return the first matching event for MVP (service will filter by fixture)
-  const event = events[0];
+  // Match by team names + date when fixture context is available
+  let event: ApiOddsEvent;
+  if (homeTeamName && awayTeamName && kickoff) {
+    const matched = findMatchingEvent(events, homeTeamName, awayTeamName, kickoff);
+    if (!matched) return unavailable;
+    event = matched;
+  } else {
+    event = events[0];
+  }
   const bookmakerNames = event.bookmakers.map((b) => b.title);
 
   const markets: NormalizedOdds['markets'] = {};
@@ -104,7 +167,7 @@ export async function fetchOdds(
     const raw = bestBookmaker(event.bookmakers, apiKey2);
     if (!raw) continue;
 
-    const selections = buildSelections(raw, marketType);
+    const selections = buildSelections(raw, marketType, event.home_team, event.away_team);
     if (!selections) continue;
 
     const overround = calculateOverround(selections.map((s) => s.odds));

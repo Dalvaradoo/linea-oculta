@@ -29,7 +29,7 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
 
   // Fetch odds + both team stats in parallel
   const [odds, homeStats, awayStats] = await Promise.all([
-    getOdds(fixtureId, fixture.competition),
+    getOdds(fixture),
     getTeamStats(fixture.homeTeam.id, fixture.competition),
     getTeamStats(fixture.awayTeam.id, fixture.competition),
   ]);

@@ -3,11 +3,11 @@ import { NormalizedTeamStats } from '@/lib/contracts/team-stats';
 import { Competition } from '@/lib/contracts/pick';
 import { CACHE_KEYS, CACHE_TTL } from '@/lib/cache-keys';
 import { LIGA_MX_SEASON } from '@/lib/constants/competitions';
-import { fetchTeamStats } from '@/providers/api-football/stats';
+import { fetchTeamStats } from '@/providers/apifootball/stats';
 
 function getApiKey(): string {
-  const key = process.env.API_FOOTBALL_KEY;
-  if (!key) throw new Error('API_FOOTBALL_KEY is not set');
+  const key = process.env.APIFOOTBALL_KEY;
+  if (!key) throw new Error('APIFOOTBALL_KEY is not set');
   return key;
 }
 

@@ -2,11 +2,11 @@ import { unstable_cache } from 'next/cache';
 import { NormalizedFixture } from '@/lib/contracts/fixture';
 import { Competition } from '@/lib/contracts/pick';
 import { CACHE_KEYS, CACHE_TTL } from '@/lib/cache-keys';
-import { fetchFixtures } from '@/providers/api-football/fixtures';
+import { fetchFixtures } from '@/providers/apifootball/fixtures';
 
 function getApiKey(): string {
-  const key = process.env.API_FOOTBALL_KEY;
-  if (!key) throw new Error('API_FOOTBALL_KEY is not set');
+  const key = process.env.APIFOOTBALL_KEY;
+  if (!key) throw new Error('APIFOOTBALL_KEY is not set');
   return key;
 }
 

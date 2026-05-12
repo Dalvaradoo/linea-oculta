@@ -30,4 +30,5 @@ export const WC_BASELINE_LEAGUE_AVERAGES = {
   goalsPerAwayGame: 1.15,
 };
 
-export const LIGA_MX_SEASON = 2026;
+// Temporarily using 2024 (free plan limit) — change to 2026 when upgrading
+export const LIGA_MX_SEASON = 2024;
