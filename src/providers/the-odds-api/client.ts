@@ -23,7 +23,7 @@ export async function oddsFetch<T>(
   apiKey: string
 ): Promise<T> {
   const url = new URL(`${BASE_URL}${path}`);
-  url.searchParams.set('apiKey', apiKey);
+  url.searchParams.set('apiKey', apiKey.trim());
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, v);
   }

@@ -18,7 +18,7 @@ export async function apifbFetch<T>(
   apiKey: string
 ): Promise<T> {
   const url = new URL(BASE_URL);
-  url.searchParams.set('APIkey', apiKey);
+  url.searchParams.set('APIkey', apiKey.trim());
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, v);
   }
