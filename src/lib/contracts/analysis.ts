@@ -32,6 +32,7 @@ export interface CalculationTrace {
 export interface PickAnalysis {
   selection: string;
   odds: number;
+  oddsAmerican: string;   // e.g. "+105", "-118"
   impliedProbability: number;
   overround: number;
   fairProbability: number;

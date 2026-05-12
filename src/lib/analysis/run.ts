@@ -4,6 +4,7 @@ import { NormalizedOdds, OddsMarket } from '@/lib/contracts/odds';
 import { NormalizedTeamStats } from '@/lib/contracts/team-stats';
 import { MarketType } from '@/lib/contracts/pick';
 import { calculateFairProbabilities } from '@/lib/probabilities/fair';
+import { formatAmerican } from '@/lib/probabilities/american-odds';
 import { calculateOverround } from '@/lib/probabilities/overround';
 import { runModel } from '@/lib/model/index';
 import { calculateEdge } from '@/lib/evaluation/edge';
@@ -54,6 +55,7 @@ function analyzePick(
   return {
     selection,
     odds,
+    oddsAmerican: formatAmerican(odds),
     impliedProbability: selectionData.impliedProbability,
     overround: market.overround,
     fairProbability: selectionData.fairProbability,
