@@ -131,35 +131,51 @@ export async function GET(req: NextRequest, { params }: Params) {
               borderRadius: 24,
               background: isValue ? '#0D1A12' : '#1A1610',
               border: `1px solid ${accent}44`,
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24,
+              display: 'flex', flexDirection: 'column', gap: 0,
             }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{
-                    padding: '6px 16px', borderRadius: 8,
-                    background: `${accent}22`, border: `1px solid ${accent}55`,
-                    color: accent, fontSize: 15, fontWeight: 900, letterSpacing: 2,
-                  }}>{label}</div>
-                  <span style={{ color: '#9A9E9A', fontSize: 14, letterSpacing: 1 }}>
-                    {(MARKET_LABEL[mkt] ?? mkt).toUpperCase()}
+              {/* top row: pick info + odds */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{
+                      padding: '6px 16px', borderRadius: 8,
+                      background: `${accent}22`, border: `1px solid ${accent}55`,
+                      color: accent, fontSize: 15, fontWeight: 900, letterSpacing: 2,
+                    }}>{label}</div>
+                    <span style={{ color: '#9A9E9A', fontSize: 14, letterSpacing: 1 }}>
+                      {(MARKET_LABEL[mkt] ?? mkt).toUpperCase()}
+                    </span>
+                  </div>
+                  <span style={{ color: '#F0F2F0', fontSize: 34, fontWeight: 700, lineHeight: 1.1 }}>{pick}</span>
+                  <span style={{ color: '#6B6F6B', fontSize: 14 }}>
+                    modelo {mdl.toFixed(1)}% · mercado {fair.toFixed(1)}%
                   </span>
                 </div>
-                <span style={{ color: '#F0F2F0', fontSize: 34, fontWeight: 700, lineHeight: 1.1 }}>{pick}</span>
-                <span style={{ color: '#6B6F6B', fontSize: 14 }}>
-                  modelo {mdl.toFixed(1)}% · mercado {fair.toFixed(1)}%
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-                <span style={{ color: accent, fontSize: 88, fontWeight: 900, lineHeight: 1, letterSpacing: -3 }}>{odds}</span>
-                <span style={{ color: accent, fontSize: 24, fontWeight: 700 }}>
-                  {edge > 0 ? '+' : ''}{edge.toFixed(1)}% edge
-                </span>
-                {kelly > 0 && (
-                  <span style={{ color: `${accent}BB`, fontSize: 16, fontWeight: 600, letterSpacing: 1 }}>
-                    Kelly ½: {(kelly * 100).toFixed(1)}% BK
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+                  <span style={{ color: accent, fontSize: 88, fontWeight: 900, lineHeight: 1, letterSpacing: -3 }}>{odds}</span>
+                  <span style={{ color: accent, fontSize: 24, fontWeight: 700 }}>
+                    {edge > 0 ? '+' : ''}{edge.toFixed(1)}% edge
                   </span>
-                )}
+                </div>
               </div>
+              {/* kelly row — centered, full width */}
+              {kelly > 0 && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+                  marginTop: 22, paddingTop: 18,
+                  borderTop: '1px solid rgba(255,255,255,0.07)',
+                }}>
+                  <span style={{ color: '#5A6070', fontSize: 12, letterSpacing: 3, fontWeight: 700 }}>
+                    TAMAÑO SUGERIDO
+                  </span>
+                  <span style={{ color: '#90CAF9', fontSize: 22, fontWeight: 900, letterSpacing: 1 }}>
+                    {(kelly * 100).toFixed(1)}% del bankroll
+                  </span>
+                  <span style={{ color: '#5A6070', fontSize: 12, letterSpacing: 2 }}>
+                    · KELLY ½
+                  </span>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{
