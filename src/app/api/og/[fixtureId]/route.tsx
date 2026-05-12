@@ -115,15 +115,15 @@ export async function GET(req: NextRequest, { params }: Params) {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
                     <span style={{ color: '#6B6F6B', fontSize: 10, width: 26 }}>MOD</span>
-                    <div style={{ width: 700, height: 7, background: '#1E201E', borderRadius: 3, position: 'relative' }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, width: `${Math.round(b.modelPct * 7)}px`, height: 7, background: edgeColor(b.edgePct), borderRadius: 3 }} />
+                    <div style={{ display: 'flex', width: 680, height: 7, background: '#1E201E', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', width: Math.round(b.modelPct * 6.8), height: 7, background: edgeColor(b.edgePct), borderRadius: 3 }} />
                     </div>
                     <span style={{ color: '#C8CCC8', fontSize: 11, width: 32 }}>{Math.round(b.modelPct)}%</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ color: '#6B6F6B', fontSize: 10, width: 26 }}>MKT</span>
-                    <div style={{ width: 700, height: 7, background: '#1E201E', borderRadius: 3, position: 'relative' }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, width: `${Math.round(b.marketPct * 7)}px`, height: 7, background: '#3A3E3A', borderRadius: 3 }} />
+                    <div style={{ display: 'flex', width: 680, height: 7, background: '#1E201E', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', width: Math.round(b.marketPct * 6.8), height: 7, background: '#3A3E3A', borderRadius: 3 }} />
                     </div>
                     <span style={{ color: '#6B6F6B', fontSize: 11, width: 32 }}>{Math.round(b.marketPct)}%</span>
                   </div>
