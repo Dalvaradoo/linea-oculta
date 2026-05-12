@@ -57,6 +57,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       pick:      bestPick.p.selection,
       odds:      bestPick.p.oddsAmerican,
       edge:      String(bestPick.p.edgePct),
+      kelly:     String(bestPick.p.kellyHalf),
       modelPct:  String(bestPick.p.modelProbability * 100),
       fairPct:   String(bestPick.p.fairProbability * 100),
       bars:      JSON.stringify(bestPick.picks.map(pk => ({
@@ -153,6 +154,7 @@ export default async function MatchPage({ params }: Params) {
       label: bestPickForOg.p.label, market: bestPickForOg.m,
       pick: bestPickForOg.p.selection, odds: bestPickForOg.p.oddsAmerican,
       edge: String(bestPickForOg.p.edgePct),
+      kelly: String(bestPickForOg.p.kellyHalf),
       modelPct: String(bestPickForOg.p.modelProbability * 100),
       fairPct: String(bestPickForOg.p.fairProbability * 100),
       bars: JSON.stringify(bestPickForOg.picks.map(pk => ({

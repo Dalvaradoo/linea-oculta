@@ -48,6 +48,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     const edge  = parseFloat(p.get('edge') ?? '0');
     const mdl   = parseFloat(p.get('modelPct') ?? '0');
     const fair  = parseFloat(p.get('fairPct') ?? '0');
+    const kelly = parseFloat(p.get('kelly') ?? '0');
 
     let bars: Bar[] = [];
     try { bars = JSON.parse(p.get('bars') ?? '[]'); } catch { bars = []; }
@@ -153,6 +154,11 @@ export async function GET(req: NextRequest, { params }: Params) {
                 <span style={{ color: accent, fontSize: 24, fontWeight: 700 }}>
                   {edge > 0 ? '+' : ''}{edge.toFixed(1)}% edge
                 </span>
+                {kelly > 0 && (
+                  <span style={{ color: `${accent}BB`, fontSize: 16, fontWeight: 600, letterSpacing: 1 }}>
+                    Kelly ½: {(kelly * 100).toFixed(1)}% BK
+                  </span>
+                )}
               </div>
             </div>
           ) : (
