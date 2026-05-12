@@ -36,8 +36,10 @@ export async function GET(req: NextRequest, { params }: Params) {
     const edge  = parseFloat(p.get('edge') ?? '0');
     const mdl   = parseFloat(p.get('modelPct') ?? '0');
     const fair  = parseFloat(p.get('fairPct') ?? '0');
-    const homeLogo = p.get('homeLogo') ?? '';
-    const awayLogo = p.get('awayLogo') ?? '';
+    // Don't use external logo images — satori fetch fails in production
+    // Use team name initials instead
+    const homeInitials = home.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
+    const awayInitials = away.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
 
     let bars: Bar[] = [];
     try { bars = JSON.parse(p.get('bars') ?? '[]'); } catch { bars = []; }
@@ -64,18 +66,16 @@ export async function GET(req: NextRequest, { params }: Params) {
           {/* Teams */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 52px 0', gap: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, flex: 1 }}>
-              {homeLogo
-                ? <img src={homeLogo} width={90} height={90} style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
-                : <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#1E201E' }} />
-              }
+              <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#1E201E', border: `2px solid ${accent}33`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: accent, fontSize: 22, fontWeight: 800 }}>{homeInitials}</span>
+              </div>
               <span style={{ color: '#F0F2F0', fontSize: 26, fontWeight: 700, textAlign: 'center' }}>{home}</span>
             </div>
             <span style={{ color: '#2A2E2A', fontSize: 22, padding: '0 20px' }}>VS</span>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, flex: 1 }}>
-              {awayLogo
-                ? <img src={awayLogo} width={90} height={90} style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
-                : <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#1E201E' }} />
-              }
+              <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#1E201E', border: `2px solid ${accent}33`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: accent, fontSize: 22, fontWeight: 800 }}>{awayInitials}</span>
+              </div>
               <span style={{ color: '#F0F2F0', fontSize: 26, fontWeight: 700, textAlign: 'center' }}>{away}</span>
             </div>
           </div>
@@ -115,15 +115,15 @@ export async function GET(req: NextRequest, { params }: Params) {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
                     <span style={{ color: '#6B6F6B', fontSize: 10, width: 26 }}>MOD</span>
-                    <div style={{ flex: 1, height: 7, background: '#1E201E', borderRadius: 3 }}>
-                      <div style={{ width: `${b.modelPct}%`, height: '100%', background: edgeColor(b.edgePct), borderRadius: 3 }} />
+                    <div style={{ width: 700, height: 7, background: '#1E201E', borderRadius: 3, position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: 0, left: 0, width: `${Math.round(b.modelPct * 7)}px`, height: 7, background: edgeColor(b.edgePct), borderRadius: 3 }} />
                     </div>
                     <span style={{ color: '#C8CCC8', fontSize: 11, width: 32 }}>{Math.round(b.modelPct)}%</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ color: '#6B6F6B', fontSize: 10, width: 26 }}>MKT</span>
-                    <div style={{ flex: 1, height: 7, background: '#1E201E', borderRadius: 3 }}>
-                      <div style={{ width: `${b.marketPct}%`, height: '100%', background: '#3A3E3A', borderRadius: 3 }} />
+                    <div style={{ width: 700, height: 7, background: '#1E201E', borderRadius: 3, position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: 0, left: 0, width: `${Math.round(b.marketPct * 7)}px`, height: 7, background: '#3A3E3A', borderRadius: 3 }} />
                     </div>
                     <span style={{ color: '#6B6F6B', fontSize: 11, width: 32 }}>{Math.round(b.marketPct)}%</span>
                   </div>
