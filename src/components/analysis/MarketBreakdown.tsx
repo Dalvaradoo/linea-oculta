@@ -5,6 +5,7 @@ import { MarketAnalysis } from '@/lib/contracts/analysis';
 import { LabelBadge } from '@/components/ui/LabelBadge';
 import { ConfidenceBadge } from '@/components/ui/ConfidenceBadge';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
+import { ExplainButton } from './ExplainButton';
 
 const MARKET_LABEL: Record<string, string> = {
   MATCH_WINNER:  'Match Winner',
@@ -23,7 +24,7 @@ function EdgeBar({ edgePct }: { edgePct: number }) {
   );
 }
 
-export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
+export function MarketBreakdown({ markets, fixtureId }: { markets: MarketAnalysis[]; fixtureId: string }) {
   if (!markets.length) return null;
 
   return (
@@ -46,9 +47,9 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
 
           {/* Rows */}
           {market.picks.map((pick) => (
+            <div key={pick.selection}>
             <div
-              key={pick.selection}
-              className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-4 items-center px-3 py-2.5 rounded hover:bg-[#1A1A1A] transition-colors duration-150 group"
+              className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-4 items-center px-3 py-2.5 rounded hover:bg-[#1A1A1A] transition-colors duration-150"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <LabelBadge label={pick.label} />
@@ -82,6 +83,16 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
                   style={{ color: pick.edgePct > 5 ? '#00E062' : pick.edgePct > 2 ? '#F5A623' : pick.edgePct < -2 ? '#E53935' : '#787878' } as React.CSSProperties}
                 />
               </div>
+            </div>
+            {(pick.label === 'VALUE' || pick.label === 'LEAN') && (
+              <div className="px-3 pb-2">
+                <ExplainButton
+                  fixtureId={fixtureId}
+                  market={market.market}
+                  selection={pick.selection}
+                />
+              </div>
+            )}
             </div>
           ))}
         </div>

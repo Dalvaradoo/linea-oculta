@@ -85,7 +85,7 @@ export default async function MatchPage({ params }: Params) {
             <div className="text-[10px] font-mono text-[#404040] uppercase tracking-widest mb-4">
               Análisis de mercados · {analysis.modelVersion}
             </div>
-            <MarketBreakdown markets={analysis.markets} />
+            <MarketBreakdown markets={analysis.markets} fixtureId={id} />
           </div>
 
           {/* Trace panels */}
