@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title,
     openGraph: {
       title,
-      images: [{ url: ogImage, width: 1200, height: 630 }],
+      images: [{ url: ogImage, width: 1080, height: 1080 }],
     },
     twitter: {
       card: 'summary_large_image',
