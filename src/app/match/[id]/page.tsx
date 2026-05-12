@@ -10,6 +10,7 @@ import { MarketBreakdown } from '@/components/analysis/MarketBreakdown';
 import { TracePanel } from '@/components/analysis/TracePanel';
 import { PickHero } from '@/components/analysis/PickHero';
 import { DataUnavailable } from '@/components/ui/DataUnavailable';
+import { ShareButton } from '@/components/ui/ShareButton';
 import { NormalizedFixture } from '@/lib/contracts/fixture';
 
 type Params = { params: Promise<{ id: string }> };
@@ -105,9 +106,15 @@ export default async function MatchPage({ params }: Params) {
     <div className="px-4 py-5 md:px-6 md:py-6">
       {/* Match meta */}
       <div className="mb-6">
-        <div className="text-[11px] font-mono text-[#9A9E9A] uppercase tracking-widest mb-1.5">
-          {COMPETITION_LABEL[fixture.competition] ?? fixture.competition}
-          {fixture.round ? ` · ${fixture.round}` : ''}
+        <div className="flex items-center justify-between gap-4 mb-1.5">
+          <div className="text-[11px] font-mono text-[#9A9E9A] uppercase tracking-widest">
+            {COMPETITION_LABEL[fixture.competition] ?? fixture.competition}
+            {fixture.round ? ` · ${fixture.round}` : ''}
+          </div>
+          <ShareButton
+            fixtureId={id}
+            title={`${fixture.homeTeam.name} vs ${fixture.awayTeam.name} · Línea Oculta`}
+          />
         </div>
         <p className="text-[17px] font-mono text-[#6B6F6B]">{formatKickoff(fixture.kickoff)}</p>
         {fixture.venue && (
