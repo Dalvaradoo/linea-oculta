@@ -56,27 +56,6 @@ export async function GET(req: NextRequest, { params }: Params) {
     const accent  = isValue ? '#00E062' : label === 'LEAN' ? '#F5A623' : '#9A9E9A';
     const logoSrc = getLogoDataUrl();
 
-    const homeLogo = p.get('homeLogo') ?? '';
-    const awayLogo = p.get('awayLogo') ?? '';
-
-    // Pre-fetch logos → base64 so satori doesn't need to fetch externally
-    async function toDataUrl(url: string): Promise<string> {
-      if (!url) return '';
-      try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-        if (!res.ok) return '';
-        const buf = await res.arrayBuffer();
-        const b64 = Buffer.from(buf).toString('base64');
-        const ct  = res.headers.get('content-type') ?? 'image/png';
-        return `data:${ct};base64,${b64}`;
-      } catch { return ''; }
-    }
-
-    const [homeLogoData, awayLogoData] = await Promise.all([
-      toDataUrl(homeLogo),
-      toDataUrl(awayLogo),
-    ]);
-
     const homeInitials = home.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
     const awayInitials = away.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase();
 
@@ -121,35 +100,25 @@ export async function GET(req: NextRequest, { params }: Params) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
             {/* Home team */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, flex: 1 }}>
-              {homeLogoData ? (
-                <img src={homeLogoData} width={110} height={110}
-                  style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
-              ) : (
-                <div style={{
-                  width: 110, height: 110, borderRadius: '50%',
-                  background: '#1E201E', border: `2px solid ${accent}33`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <span style={{ color: accent, fontSize: 28, fontWeight: 900 }}>{homeInitials}</span>
-                </div>
-              )}
+              <div style={{
+                width: 110, height: 110, borderRadius: '50%',
+                background: '#1E201E', border: `2px solid ${accent}33`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ color: accent, fontSize: 28, fontWeight: 900 }}>{homeInitials}</span>
+              </div>
               <span style={{ color: '#F0F2F0', fontSize: 28, fontWeight: 700, textAlign: 'center', lineHeight: 1.2 }}>{home}</span>
             </div>
             <span style={{ color: '#2A2E2A', fontSize: 26, fontWeight: 700, padding: '0 28px' }}>VS</span>
             {/* Away team */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, flex: 1 }}>
-              {awayLogoData ? (
-                <img src={awayLogoData} width={110} height={110}
-                  style={{ objectFit: 'contain', borderRadius: '50%', background: '#1E201E' }} />
-              ) : (
-                <div style={{
-                  width: 110, height: 110, borderRadius: '50%',
-                  background: '#1E201E', border: `2px solid ${accent}33`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <span style={{ color: accent, fontSize: 28, fontWeight: 900 }}>{awayInitials}</span>
-                </div>
-              )}
+              <div style={{
+                width: 110, height: 110, borderRadius: '50%',
+                background: '#1E201E', border: `2px solid ${accent}33`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ color: accent, fontSize: 28, fontWeight: 900 }}>{awayInitials}</span>
+              </div>
               <span style={{ color: '#F0F2F0', fontSize: 28, fontWeight: 700, textAlign: 'center', lineHeight: 1.2 }}>{away}</span>
             </div>
           </div>
