@@ -1,9 +1,11 @@
 import { Competition } from '@/lib/contracts/pick';
 
+const V = 'v2'; // bump to bust Vercel Data Cache
+
 export const CACHE_KEYS = {
-  fixtures: (competition: Competition): string[] => ['fixtures', competition],
-  odds: (fixtureId: string): string[] => ['odds', fixtureId],
-  stats: (teamId: string, season: number): string[] => ['stats', teamId, String(season)],
+  fixtures: (competition: Competition): string[] => [V, 'fixtures', competition],
+  odds: (fixtureId: string): string[] => [V, 'odds', fixtureId],
+  stats: (teamId: string, season: number): string[] => [V, 'stats', teamId, String(season)],
 };
 
 export const CACHE_TTL = {
