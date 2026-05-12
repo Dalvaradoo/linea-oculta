@@ -15,9 +15,9 @@ async function ping(url: string, headers?: Record<string, string>): Promise<'ok'
 }
 
 export async function GET(): Promise<NextResponse> {
-  const afKey = process.env.API_FOOTBALL_KEY ?? '';
+  const apifbKey = process.env.APIFOOTBALL_KEY ?? '';
   const [apiFootball, theOddsApi] = await Promise.all([
-    ping('https://v3.football.api-sports.io/status', { 'x-apisports-key': afKey }),
+    ping(`https://apiv3.apifootball.com/?action=get_leagues&APIkey=${apifbKey}`),
     ping('https://api.the-odds-api.com/v4/sports?apiKey=ping'),
   ]);
 

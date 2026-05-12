@@ -30,10 +30,14 @@ export async function apifbFetch<T>(
 
     let res: Response;
     try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15_000);
       res = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
         next: { revalidate: 0 },
+        signal: controller.signal,
       });
+      clearTimeout(timer);
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
       continue;
