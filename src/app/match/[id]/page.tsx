@@ -113,7 +113,7 @@ export default async function MatchPage({ params }: Params) {
           </div>
           <ShareButton
             fixtureId={id}
-            title={`${fixture.homeTeam.name} vs ${fixture.awayTeam.name} · Línea Oculta`}
+            matchTitle={`${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`}
           />
         </div>
         <p className="text-[17px] font-mono text-[#6B6F6B]">{formatKickoff(fixture.kickoff)}</p>
