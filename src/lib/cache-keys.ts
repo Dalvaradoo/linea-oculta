@@ -1,6 +1,6 @@
 import { Competition } from '@/lib/contracts/pick';
 
-const V = 'v2'; // bump to bust Vercel Data Cache
+const V = 'v3'; // bump to bust Vercel Data Cache
 
 export const CACHE_KEYS = {
   fixtures: (competition: Competition): string[] => [V, 'fixtures', competition],

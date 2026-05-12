@@ -14,9 +14,8 @@ import { NormalizedFixture } from '@/lib/contracts/fixture';
 
 type Params = { params: Promise<{ id: string }> };
 
-const BASE_URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL
+  ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
