@@ -160,7 +160,20 @@ export function runAnalysis(
 
   if (odds.markets.matchWinner) {
     const m = analyzeMarket(odds.markets.matchWinner, 'MATCH_WINNER', homeStats, awayStats, modelOutput);
-    if (m) markets.push(m);
+    if (m) {
+      // Replace generic Home/Away labels with actual team names
+      const named: MarketAnalysis = {
+        ...m,
+        picks: m.picks.map((p) => ({
+          ...p,
+          selection:
+            p.selection === 'Home' ? fixture.homeTeam.name
+            : p.selection === 'Away' ? fixture.awayTeam.name
+            : p.selection,
+        })),
+      };
+      markets.push(named);
+    }
   }
   if (odds.markets.bothTeamsScore) {
     const m = analyzeMarket(odds.markets.bothTeamsScore, 'BTTS', homeStats, awayStats, modelOutput);
