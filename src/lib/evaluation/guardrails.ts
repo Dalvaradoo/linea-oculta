@@ -15,7 +15,7 @@ export interface GuardrailInput {
   modelProbability: number;
   fairProbability: number;
   market: OddsMarket;
-  statsRetrievedAt: Date;
+  statsRetrievedAt: Date | string;
   competition: string;
   gamesUsed: number;
 }
@@ -44,7 +44,7 @@ export function checkGuardrails(input: GuardrailInput): GuardrailFlags {
       Math.abs(modelProbability - fairProbability) > MARKET_DIVERGENCE_THRESHOLD,
     incompleteMarket:
       market.selections.length < EXPECTED_SELECTIONS[market.type],
-    staleData: Date.now() - statsRetrievedAt.getTime() > STALE_DATA_MS,
+    staleData: Date.now() - new Date(statsRetrievedAt).getTime() > STALE_DATA_MS,
     wcLimitedData: competition === 'WC_2026' && gamesUsed < WC_LIMITED_DATA_THRESHOLD,
   };
 }

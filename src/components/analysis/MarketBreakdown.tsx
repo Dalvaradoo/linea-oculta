@@ -1,8 +1,10 @@
 'use client';
 
+import React from 'react';
 import { MarketAnalysis } from '@/lib/contracts/analysis';
 import { LabelBadge } from '@/components/ui/LabelBadge';
 import { ConfidenceBadge } from '@/components/ui/ConfidenceBadge';
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 
 const MARKET_LABEL: Record<string, string> = {
   MATCH_WINNER:  'Match Winner',
@@ -56,23 +58,29 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
               <span className="font-mono text-sm text-[#F2F2F2] text-right tabular-nums">
                 {pick.oddsAmerican}
               </span>
-              <span className="font-mono text-xs text-[#787878] text-right tabular-nums">
-                {(pick.impliedProbability * 100).toFixed(1)}%
-              </span>
-              <span className="font-mono text-xs text-[#787878] text-right tabular-nums">
-                {(pick.fairProbability * 100).toFixed(1)}%
-              </span>
-              <span className="font-mono text-xs text-[#F2F2F2] text-right tabular-nums">
-                {(pick.modelProbability * 100).toFixed(1)}%
-              </span>
+              <AnimatedNumber
+                value={pick.impliedProbability * 100}
+                format={(n) => `${n.toFixed(1)}%`}
+                className="font-mono text-xs text-[#787878] text-right tabular-nums block"
+              />
+              <AnimatedNumber
+                value={pick.fairProbability * 100}
+                format={(n) => `${n.toFixed(1)}%`}
+                className="font-mono text-xs text-[#787878] text-right tabular-nums block"
+              />
+              <AnimatedNumber
+                value={pick.modelProbability * 100}
+                format={(n) => `${n.toFixed(1)}%`}
+                className="font-mono text-xs text-[#F2F2F2] text-right tabular-nums block"
+              />
               <div className="flex items-center gap-2 justify-end">
                 <EdgeBar edgePct={pick.edgePct} />
-                <span
-                  className="font-mono text-xs text-right tabular-nums w-14"
-                  style={{ color: pick.edgePct > 5 ? '#00E062' : pick.edgePct > 2 ? '#F5A623' : pick.edgePct < -2 ? '#E53935' : '#787878' }}
-                >
-                  {pick.edgePct > 0 ? '+' : ''}{pick.edgePct.toFixed(1)}%
-                </span>
+                <AnimatedNumber
+                  value={pick.edgePct}
+                  format={(n) => `${n > 0 ? '+' : ''}${n.toFixed(1)}%`}
+                  className="font-mono text-xs text-right tabular-nums w-14 block"
+                  style={{ color: pick.edgePct > 5 ? '#00E062' : pick.edgePct > 2 ? '#F5A623' : pick.edgePct < -2 ? '#E53935' : '#787878' } as React.CSSProperties}
+                />
               </div>
             </div>
           ))}
