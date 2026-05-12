@@ -180,7 +180,6 @@ export default async function MatchPage({ params }: Params) {
             {fixture.round ? ` · ${fixture.round}` : ''}
           </div>
           <ShareButton
-            fixtureId={id}
             matchTitle={`${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`}
             ogUrl={ogUrl}
           />
