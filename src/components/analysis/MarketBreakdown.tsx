@@ -41,19 +41,20 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
           {/* ── DESKTOP TABLE (md+) ── */}
           <div className="hidden md:block">
             {/* Header */}
-            <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-5 items-center px-4 py-2 text-[12px] font-mono text-[#6B6F6B] uppercase tracking-wider border-b border-white/[0.07] mb-1">
+            <div className="grid grid-cols-[1fr_auto_auto_auto_auto_auto_auto] gap-x-5 items-center px-4 py-2 text-[12px] font-mono text-[#6B6F6B] uppercase tracking-wider border-b border-white/[0.07] mb-1">
               <span>Selección</span>
               <span className="text-right">Momio</span>
               <span className="text-right">P. Impl</span>
               <span className="text-right">P. Justa</span>
               <span className="text-right">Modelo</span>
               <span className="text-right">Edge</span>
+              <span className="text-right">Kelly ½</span>
             </div>
             {/* Rows */}
             {market.picks.map((pick) => (
               <div
                 key={pick.selection}
-                className="grid grid-cols-[1fr_auto_auto_auto_auto_auto] gap-x-5 items-center px-4 py-3.5 rounded-lg hover:bg-white/[0.04] transition-colors duration-150"
+                className="grid grid-cols-[1fr_auto_auto_auto_auto_auto_auto] gap-x-5 items-center px-4 py-3.5 rounded-lg hover:bg-white/[0.04] transition-colors duration-150"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <LabelBadge label={pick.label} />
@@ -87,6 +88,18 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
                     style={{ color: edgeColor(pick.edgePct) } as React.CSSProperties}
                   />
                 </div>
+                <div className="text-right">
+                  {pick.kellyHalf > 0 ? (
+                    <span
+                      className="font-mono text-[17px] tabular-nums font-semibold"
+                      style={{ color: edgeColor(pick.edgePct) }}
+                    >
+                      {(pick.kellyHalf * 100).toFixed(1)}%
+                    </span>
+                  ) : (
+                    <span className="font-mono text-[17px] text-[#3A3E3A]">—</span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -106,8 +119,8 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
                   </span>
                   <ConfidenceBadge level={pick.confidence} />
                 </div>
-                {/* Row 2: odds | model | edge */}
-                <div className="grid grid-cols-3 gap-2">
+                {/* Row 2: odds | model | edge | kelly */}
+                <div className="grid grid-cols-4 gap-2">
                   <div>
                     <div className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Momio</div>
                     <div className="text-[17px] font-mono font-bold text-[#F0F2F0] tabular-nums">
@@ -127,6 +140,15 @@ export function MarketBreakdown({ markets }: { markets: MarketAnalysis[] }) {
                       style={{ color: edgeColor(pick.edgePct) }}
                     >
                       {pick.edgePct > 0 ? '+' : ''}{pick.edgePct.toFixed(1)}%
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-wider mb-0.5">Kelly ½</div>
+                    <div
+                      className="text-[17px] font-mono font-bold tabular-nums"
+                      style={{ color: pick.kellyHalf > 0 ? edgeColor(pick.edgePct) : '#3A3E3A' }}
+                    >
+                      {pick.kellyHalf > 0 ? `${(pick.kellyHalf * 100).toFixed(1)}%` : '—'}
                     </div>
                   </div>
                 </div>

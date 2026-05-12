@@ -39,6 +39,8 @@ export interface PickAnalysis {
   modelProbability: number;
   edge: number;
   edgePct: number;
+  kellyFull: number;  // fraction of bankroll (0–0.25)
+  kellyHalf: number;  // ½ Kelly — recommended size
   label: Label;
   confidence: ConfidenceLevel;
   reasonCodes: ReasonCode[];

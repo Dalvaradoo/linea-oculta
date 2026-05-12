@@ -8,6 +8,7 @@ import { formatAmerican } from '@/lib/probabilities/american-odds';
 import { calculateOverround } from '@/lib/probabilities/overround';
 import { runModel } from '@/lib/model/index';
 import { calculateEdge } from '@/lib/evaluation/edge';
+import { calculateKelly } from '@/lib/evaluation/kelly';
 import { checkGuardrails, anyGuardrailActive } from '@/lib/evaluation/guardrails';
 import { assignLabel } from '@/lib/evaluation/labels';
 import { assessConfidence } from '@/lib/evaluation/confidence';
@@ -28,6 +29,7 @@ function analyzePick(
   if (!selectionData) throw new Error(`Selection ${selection} not found in market`);
 
   const { edge, edgePct } = calculateEdge(modelProbability, selectionData.fairProbability);
+  const { full: kellyFull, half: kellyHalf } = calculateKelly(modelProbability, odds);
 
   const flags = checkGuardrails({
     oddsAvailable: true,
@@ -62,6 +64,8 @@ function analyzePick(
     modelProbability,
     edge,
     edgePct,
+    kellyFull,
+    kellyHalf,
     label,
     confidence,
     reasonCodes,

@@ -98,6 +98,14 @@ export function PickHero({ fixture, analysis }: Props) {
             <div className="text-[17px] md:text-[18px] font-mono text-[#6B6F6B] mt-0.5">
               modelo {(pick.modelProbability * 100).toFixed(1)}% · mercado {(pick.fairProbability * 100).toFixed(1)}%
             </div>
+            {pick.kellyHalf > 0 && (
+              <div className="mt-2 flex items-center gap-1.5">
+                <span className="text-[11px] font-mono text-[#6B6F6B] uppercase tracking-wider">Kelly ½</span>
+                <span className={`text-[17px] font-mono font-bold tabular-nums ${isValue ? 'text-[#00E062]' : 'text-[#F5A623]'}`}>
+                  {(pick.kellyHalf * 100).toFixed(1)}% bankroll
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
