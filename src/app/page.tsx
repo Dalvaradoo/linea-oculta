@@ -26,9 +26,9 @@ async function FixtureList() {
 
   if (!fixtures.length) {
     return (
-      <div className="text-center py-16">
-        <p className="text-[#787878] font-mono text-sm">No hay partidos próximos disponibles.</p>
-        <p className="text-[#404040] font-mono text-xs mt-1">Vuelve cuando se acerque la próxima jornada.</p>
+      <div className="text-center py-20">
+        <p className="text-[#9A9E9A] font-mono text-[19px]">No hay partidos próximos disponibles.</p>
+        <p className="text-[#6B6F6B] font-mono text-[18px] mt-1">Vuelve cuando se acerque la próxima jornada.</p>
       </div>
     );
   }
@@ -44,8 +44,8 @@ async function FixtureList() {
   return (
     <div className="space-y-3">
       {hasValue && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded border border-[#00E062]/20 bg-[#00E062]/5 text-[#00E062] text-xs font-mono mb-4">
-          <span>●</span>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#00E062]/20 bg-[#00E062]/5 text-[#00E062] text-[18px] font-mono mb-5">
+          <span className="text-[8px]">●</span>
           <span>Hay picks VALUE disponibles hoy</span>
         </div>
       )}
@@ -58,31 +58,25 @@ async function FixtureList() {
 
 export default function HomePage() {
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
+    <div className="px-4 py-5 md:px-6 md:py-6">
       <header className="mb-8">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-lg font-mono font-semibold tracking-tight text-[#F2F2F2]">
-            LÍNEA OCULTA
+          <h1 className="text-[19px] font-mono font-semibold tracking-tight text-[#F0F2F0]">
+            Próximos partidos
           </h1>
-          <span className="text-xs font-mono text-[#404040]">análisis deportivo</span>
         </div>
-        <p className="text-xs text-[#787878] mt-1 font-mono">
-          Liga MX · Copa del Mundo 2026 · Modelo Poisson v1
+        <p className="text-[18px] text-[#9A9E9A] mt-1 font-mono">
+          Modelo Poisson v1 · Liga MX · Copa del Mundo 2026
         </p>
       </header>
 
-      <section>
-        <div className="text-[10px] font-mono text-[#404040] uppercase tracking-widest mb-3">
-          Próximos partidos
+      <Suspense fallback={
+        <div className="space-y-3">
+          {[1,2,3].map(i => <MatchCardSkeleton key={i} />)}
         </div>
-        <Suspense fallback={
-          <div className="space-y-3">
-            {[1,2,3].map(i => <MatchCardSkeleton key={i} />)}
-          </div>
-        }>
-          <FixtureList />
-        </Suspense>
-      </section>
-    </main>
+      }>
+        <FixtureList />
+      </Suspense>
+    </div>
   );
 }

@@ -6,7 +6,7 @@ import { ApifbEvent } from './types';
 // apifootball.com league IDs
 const LEAGUE_IDS: Record<Competition, string> = {
   LIGA_MX: '235',
-  WC_2026: '1180', // FIFA World Cup 2026 — verify when tournament opens
+  WC_2026: '28', // apifootball league_id 28 = World Cup 2026
 };
 
 function mapStatus(status: string): NormalizedFixture['status'] {
@@ -21,7 +21,7 @@ function mapStatus(status: string): NormalizedFixture['status'] {
 export async function fetchFixtures(
   competition: Competition,
   apiKey: string,
-  daysAhead = 7
+  daysAhead = competition === 'WC_2026' ? 60 : 7
 ): Promise<NormalizedFixture[]> {
   const leagueId = LEAGUE_IDS[competition];
   const from = new Date();

@@ -33,5 +33,7 @@ export async function getFixturesForAllCompetitions(): Promise<NormalizedFixture
     getFixtures('LIGA_MX'),
     getFixtures('WC_2026'),
   ]);
-  return [...ligaMx, ...wc].sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime());
+  return [...ligaMx, ...wc].sort(
+    (a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()
+  );
 }

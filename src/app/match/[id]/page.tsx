@@ -1,12 +1,15 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getFixturesForAllCompetitions } from '@/services/fixtures';
+import { getFixturesForAllCompetitions, getFixtures } from '@/services/fixtures';
 import { getOdds } from '@/services/odds';
 import { getTeamStats } from '@/services/team-stats';
 import { runAnalysis } from '@/lib/analysis/run';
 import { MarketBreakdown } from '@/components/analysis/MarketBreakdown';
 import { TracePanel } from '@/components/analysis/TracePanel';
+import { PickHero } from '@/components/analysis/PickHero';
 import { DataUnavailable } from '@/components/ui/DataUnavailable';
+import { NormalizedFixture } from '@/lib/contracts/fixture';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -22,6 +25,33 @@ const COMPETITION_LABEL: Record<string, string> = {
   WC_2026: 'Copa del Mundo 2026',
 };
 
+function OtherMatchRow({ fixture }: { fixture: NormalizedFixture }) {
+  return (
+    <Link
+      href={`/match/${fixture.id}`}
+      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#141414] transition-colors duration-150 group"
+    >
+      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+        {fixture.homeTeam.logo && (
+          <Image src={fixture.homeTeam.logo} alt={fixture.homeTeam.name} width={16} height={16} className="object-contain flex-shrink-0" />
+        )}
+        <span className="text-xs text-[#787878] group-hover:text-[#C0C0C0] transition-colors truncate">
+          {fixture.homeTeam.name}
+        </span>
+      </div>
+      <span className="text-[18px] font-mono text-[#404040] flex-shrink-0">vs</span>
+      <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+        <span className="text-xs text-[#787878] group-hover:text-[#C0C0C0] transition-colors truncate text-right">
+          {fixture.awayTeam.name}
+        </span>
+        {fixture.awayTeam.logo && (
+          <Image src={fixture.awayTeam.logo} alt={fixture.awayTeam.name} width={16} height={16} className="object-contain flex-shrink-0" />
+        )}
+      </div>
+    </Link>
+  );
+}
+
 export default async function MatchPage({ params }: Params) {
   const { id } = await params;
 
@@ -29,13 +59,15 @@ export default async function MatchPage({ params }: Params) {
   const fixture = fixtures.find((f) => f.id === id);
   if (!fixture) notFound();
 
-  const [odds, homeStats, awayStats] = await Promise.all([
+  const [odds, homeStats, awayStats, competitionFixtures] = await Promise.all([
     getOdds(fixture),
     getTeamStats(fixture.homeTeam.id, fixture.competition),
     getTeamStats(fixture.awayTeam.id, fixture.competition),
+    getFixtures(fixture.competition),
   ]);
 
   const analysis = runAnalysis(fixture, odds, homeStats, awayStats);
+  const otherFixtures = competitionFixtures.filter((f) => f.id !== id).slice(0, 6);
 
   const oddsUnavailable = analysis.dataAvailability.odds === 'NOT_AVAILABLE';
   const statsInsufficient =
@@ -43,26 +75,16 @@ export default async function MatchPage({ params }: Params) {
     analysis.dataAvailability.awayStats === 'INSUFFICIENT';
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
-      {/* Back */}
-      <Link href="/" className="inline-flex items-center gap-1 text-xs font-mono text-[#787878] hover:text-[#F2F2F2] transition-colors mb-6 cursor-pointer">
-        ← Volver
-      </Link>
-
-      {/* Match header */}
-      <div className="mb-8">
-        <div className="text-[10px] font-mono text-[#787878] uppercase tracking-widest mb-2">
+    <div className="px-4 py-5 md:px-6 md:py-6">
+      {/* Match meta */}
+      <div className="mb-6">
+        <div className="text-[12px] font-mono text-[#9A9E9A] uppercase tracking-widest mb-1.5">
           {COMPETITION_LABEL[fixture.competition] ?? fixture.competition}
           {fixture.round ? ` · ${fixture.round}` : ''}
         </div>
-        <div className="flex items-center justify-between gap-4 mb-1">
-          <h1 className="text-xl font-semibold text-[#F2F2F2]">{fixture.homeTeam.name}</h1>
-          <span className="text-sm font-mono text-[#404040]">vs</span>
-          <h1 className="text-xl font-semibold text-[#F2F2F2] text-right">{fixture.awayTeam.name}</h1>
-        </div>
-        <p className="text-xs font-mono text-[#787878]">{formatKickoff(fixture.kickoff)}</p>
+        <p className="text-[18px] font-mono text-[#6B6F6B]">{formatKickoff(fixture.kickoff)}</p>
         {fixture.venue && (
-          <p className="text-xs font-mono text-[#404040] mt-0.5">{fixture.venue}</p>
+          <p className="text-[19px] font-mono text-[#6B6F6B] mt-0.5">{fixture.venue}</p>
         )}
       </div>
 
@@ -81,16 +103,19 @@ export default async function MatchPage({ params }: Params) {
       {/* Analysis */}
       {analysis.markets.length > 0 ? (
         <div className="space-y-8">
+          {/* Hero pick */}
+          <PickHero fixture={fixture} analysis={analysis} />
+
           <div>
-            <div className="text-[10px] font-mono text-[#404040] uppercase tracking-widest mb-4">
-              Análisis de mercados · {analysis.modelVersion}
+            <div className="text-[12px] font-mono text-[#9A9E9A] uppercase tracking-widest mb-5">
+              Todos los mercados · {analysis.modelVersion}
             </div>
-            <MarketBreakdown markets={analysis.markets} fixtureId={id} />
+            <MarketBreakdown markets={analysis.markets} />
           </div>
 
           {/* Trace panels */}
           <div>
-            <div className="text-[10px] font-mono text-[#404040] uppercase tracking-widest mb-3">
+            <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-3">
               Trazabilidad del modelo
             </div>
             <div className="space-y-2">
@@ -109,13 +134,27 @@ export default async function MatchPage({ params }: Params) {
         <DataUnavailable message="No hay suficientes datos para generar un análisis." />
       )}
 
+      {/* Other matches in same competition */}
+      {otherFixtures.length > 0 && (
+        <div className="mt-10">
+          <div className="text-[12px] font-mono text-[#6B6F6B] uppercase tracking-widest mb-2">
+            Otros partidos · {COMPETITION_LABEL[fixture.competition] ?? fixture.competition}
+          </div>
+          <div className="space-y-0.5">
+            {otherFixtures.map((f) => (
+              <OtherMatchRow key={f.id} fixture={f} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
-      <footer className="mt-12 pt-4 border-t border-[#1E1E1E]">
-        <p className="text-[10px] font-mono text-[#404040] leading-relaxed">
+      <footer className="mt-10 pt-4 border-t border-[#1E1E1E]">
+        <p className="text-[19px] font-mono text-[#6B6F6B] leading-relaxed">
           Línea Oculta es una herramienta de análisis estadístico. No garantiza resultados.
           Las probabilidades son estimaciones basadas en datos históricos. Juega responsablemente.
         </p>
       </footer>
-    </main>
+    </div>
   );
 }

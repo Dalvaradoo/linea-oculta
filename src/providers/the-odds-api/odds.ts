@@ -105,11 +105,14 @@ function findMatchingEvent(
   awayTeamName: string,
   kickoff: Date | string
 ): ApiOddsEvent | null {
-  const kickoffDate = new Date(kickoff).toISOString().split('T')[0];
+  const kickoffMs = new Date(kickoff).getTime();
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+
   return events.find((e) => {
-    const eventDate = new Date(e.commence_time).toISOString().split('T')[0];
+    const eventMs = new Date(e.commence_time).getTime();
+    const withinDay = Math.abs(eventMs - kickoffMs) <= ONE_DAY;
     return (
-      eventDate === kickoffDate &&
+      withinDay &&
       teamNamesMatch(e.home_team, homeTeamName) &&
       teamNamesMatch(e.away_team, awayTeamName)
     );

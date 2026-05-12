@@ -4,26 +4,111 @@
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-mono), 'JetBrains Mono', monospace;
 
-  /* Design tokens */
-  --color-bg:           #0A0A0A;
-  --color-surface:      #141414;
-  --color-border:       #2A2A2A;
-  --color-border-subtle:#1E1E1E;
-  --color-text:         #F2F2F2;
-  --color-muted:        #787878;
-  --color-dim:          #404040;
-  --color-value:        #00E062;
-  --color-lean:         #F5A623;
-  --color-fair:         #787878;
-  --color-avoid:        #E53935;
-  --color-info:         #3B82F6;
+  --color-bg:            #07090F;
+  --color-surface:       rgba(255,255,255,0.04);
+  --color-border:        rgba(255,255,255,0.10);
+  --color-border-subtle: rgba(255,255,255,0.06);
+  --color-text:          #F0F2F0;
+  --color-muted:         #9A9E9A;
+  --color-dim:           #6B6F6B;
+  --color-value:         #00E062;
+  --color-lean:          #F5A623;
+  --color-fair:          #9A9E9A;
+  --color-avoid:         #E53935;
 }
 
 * { box-sizing: border-box; }
 
+html, body { height: 100%; }
+
+/* ── Aurora mesh background ── */
 body {
-  background: #0A0A0A;
-  color: #F2F2F2;
+  background-color: #07090F;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(0, 224, 98, 0.13)  0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 10%,  rgba(0, 80,  200, 0.09) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 100%, rgba(0, 60,  40,  0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 85% 80%,  rgba(0, 224, 98, 0.06)  0%, transparent 50%);
+  background-attachment: fixed;
+  color: #F0F2F0;
+}
+
+/* Slow breathing animation on the aurora — only on desktop + no reduced motion */
+@media (min-width: 768px) {
+  @keyframes aurora-shift {
+    0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 85% 80%; }
+    33%  { background-position: 5% 10%, 95% 5%, 48% 98%, 88% 75%; }
+    66%  { background-position: 2% 5%, 98% 8%, 52% 102%, 82% 85%; }
+    100% { background-position: 0% 0%, 100% 0%, 50% 100%, 85% 80%; }
+  }
+
+  @media not (prefers-reduced-motion) {
+    body {
+      background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%;
+      animation: aurora-shift 18s ease-in-out infinite;
+    }
+  }
+}
+
+/* Noise overlay for depth — via ::before on body wrapper */
+.noise-overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Glassmorphism utilities ── */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-value {
+  background: rgba(0, 224, 98, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 224, 98, 0.20);
+}
+
+.glass-lean {
+  background: rgba(245, 166, 35, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 166, 35, 0.18);
+}
+
+/* ── Chrome gradient text ── */
+.text-chrome-green {
+  background: linear-gradient(135deg, #00E062 0%, #7FFFC4 40%, #00E062 70%, #00A847 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Gradient border (VALUE cards) ── */
+.border-gradient-value {
+  position: relative;
+  border: none !important;
+}
+.border-gradient-value::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0,224,98,0.5), rgba(0,224,98,0.1), rgba(0,100,50,0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .font-data {
@@ -31,5 +116,6 @@ body {
 }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #0A0A0A; }
-::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
