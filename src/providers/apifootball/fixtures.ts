@@ -35,7 +35,9 @@ export async function fetchFixtures(
     apiKey
   );
 
-  return data.map((f): NormalizedFixture => ({
+  return data
+    .filter(f => f.match_hometeam_name !== 'Home' && f.match_awayteam_name !== 'Away')
+    .map((f): NormalizedFixture => ({
     id: f.match_id,
     externalId: f.match_id,
     provider: 'api-football' as const, // reuse existing provider type
@@ -57,3 +59,4 @@ export async function fetchFixtures(
     dataQuality: 'AVAILABLE',
   }));
 }
+
