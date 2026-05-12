@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
@@ -12,6 +12,13 @@ export function ShareButton({ fixtureId, matchTitle }: Props) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  // Reset image state when modal opens
+  useEffect(() => {
+    if (open) { setImgLoaded(false); setImgError(false); }
+  }, [open]);
 
   const imageUrl = `/api/og/${fixtureId}`;
   const matchUrl = typeof window !== 'undefined'
@@ -78,7 +85,7 @@ export function ShareButton({ fixtureId, matchTitle }: Props) {
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
             >
               <div
-                className="pointer-events-auto w-full max-w-sm rounded-2xl glass border border-white/[0.10] overflow-hidden"
+                className="pointer-events-auto w-full max-w-md rounded-2xl glass border border-white/[0.10] overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
@@ -98,13 +105,32 @@ export function ShareButton({ fixtureId, matchTitle }: Props) {
 
                 {/* Image preview */}
                 <div className="px-5 pt-5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imageUrl}
-                    alt={matchTitle}
-                    className="w-full rounded-xl border border-white/[0.07]"
-                    style={{ aspectRatio: '1/1', objectFit: 'cover' }}
-                  />
+                  <div className="relative w-full rounded-xl overflow-hidden border border-white/[0.07]" style={{ aspectRatio: '1/1' }}>
+                    {/* Loading skeleton */}
+                    {!imgLoaded && !imgError && (
+                      <div className="absolute inset-0 bg-[#161816] flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-8 h-8 border-2 border-[#00E062]/30 border-t-[#00E062] rounded-full animate-spin" />
+                          <span className="text-[11px] font-mono text-[#6B6F6B]">Generando imagen...</span>
+                        </div>
+                      </div>
+                    )}
+                    {/* Error state */}
+                    {imgError && (
+                      <div className="absolute inset-0 bg-[#161816] flex items-center justify-center">
+                        <span className="text-[11px] font-mono text-[#6B6F6B]">No se pudo cargar la imagen</span>
+                      </div>
+                    )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageUrl}
+                      alt={matchTitle}
+                      className="w-full h-full object-contain"
+                      style={{ display: imgLoaded ? 'block' : 'none' }}
+                      onLoad={() => setImgLoaded(true)}
+                      onError={() => setImgError(true)}
+                    />
+                  </div>
                 </div>
 
                 {/* Actions */}
