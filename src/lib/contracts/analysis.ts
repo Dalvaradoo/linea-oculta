@@ -24,6 +24,7 @@ export interface CalculationTrace {
     over25: number;
     under25: number;
   };
+  dixonColesRho: number;
   oddsSource: string;
   statsSource: string;
   gamesUsed: { home: number; away: number };

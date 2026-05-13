@@ -7,6 +7,7 @@ import { calculateFairProbabilities } from '@/lib/probabilities/fair';
 import { formatAmerican } from '@/lib/probabilities/american-odds';
 import { calculateOverround } from '@/lib/probabilities/overround';
 import { runModel } from '@/lib/model/index';
+import { DIXON_COLES_RHO } from '@/lib/model/poisson';
 import { calculateEdge } from '@/lib/evaluation/edge';
 import { calculateKelly } from '@/lib/evaluation/kelly';
 import { checkGuardrails, anyGuardrailActive } from '@/lib/evaluation/guardrails';
@@ -14,7 +15,7 @@ import { assignLabel } from '@/lib/evaluation/labels';
 import { assessConfidence } from '@/lib/evaluation/confidence';
 import { buildReasonCodes } from '@/lib/evaluation/reason-codes';
 
-const MODEL_VERSION = 'poisson-v1';
+const MODEL_VERSION = 'poisson-v2-dc';
 
 function analyzePick(
   selection: string,
@@ -89,6 +90,7 @@ function buildTrace(
     lambdaAway: modelOutput.expectedGoals.lambdaAway,
     scoreMatrix: modelOutput.scoreMatrix.matrix,
     derivedProbabilities: modelOutput.probabilities,
+    dixonColesRho: DIXON_COLES_RHO,
     oddsSource: 'the-odds-api',
     statsSource: 'api-football',
     gamesUsed: {

@@ -41,6 +41,7 @@ export function TracePanel({ trace, selection }: { trace: CalculationTrace; sele
             <div className="text-[11px] text-[#404040] uppercase tracking-wider mb-2">Goles Esperados</div>
             <Row label="λ Local" value={trace.lambdaHome.toFixed(4)} />
             <Row label="λ Visitante" value={trace.lambdaAway.toFixed(4)} />
+            <Row label="ρ Dixon-Coles" value={trace.dixonColesRho.toFixed(2)} />
           </div>
           <div>
             <div className="text-[11px] text-[#404040] uppercase tracking-wider mb-2">Probabilidades del Modelo</div>
