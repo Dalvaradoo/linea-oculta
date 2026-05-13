@@ -21,7 +21,7 @@ function mapStatus(status: string): NormalizedFixture['status'] {
 export async function fetchFixtures(
   competition: Competition,
   apiKey: string,
-  daysAhead = competition === 'WC_2026' ? 60 : 7
+  daysAhead = competition === 'WC_2026' ? 30 : 7
 ): Promise<NormalizedFixture[]> {
   const leagueId = LEAGUE_IDS[competition];
   const from = new Date();
