@@ -119,15 +119,27 @@ function findMatchingEvent(
   }) ?? null;
 }
 
-export async function fetchOdds(
-  fixtureId: string,
+// Fetch ALL events for a competition — call once, cache at competition level
+export async function fetchAllOddsEvents(
   competition: Competition,
-  apiKey: string,
-  homeTeamName?: string,
-  awayTeamName?: string,
-  kickoff?: Date | string
-): Promise<NormalizedOdds> {
+  apiKey: string
+): Promise<ApiOddsEvent[]> {
   const sportKey = THE_ODDS_API_KEYS[competition];
+  return oddsFetch<ApiOddsEvent[]>(
+    `/sports/${sportKey}/odds`,
+    { regions: 'us,eu', markets: 'h2h,totals', oddsFormat: 'decimal' },
+    apiKey
+  );
+}
+
+// Normalize one event from a pre-fetched events list
+export function normalizeOddsForFixture(
+  fixtureId: string,
+  events: ApiOddsEvent[],
+  homeTeamName: string,
+  awayTeamName: string,
+  kickoff: Date | string
+): NormalizedOdds {
   const unavailable: NormalizedOdds = {
     fixtureId,
     provider: 'the-odds-api',
@@ -137,30 +149,12 @@ export async function fetchOdds(
     availability: 'NOT_AVAILABLE',
   };
 
-  let events: ApiOddsEvent[];
-  try {
-    // btts is not universally supported — query h2h+totals first, btts separately
-    events = await oddsFetch<ApiOddsEvent[]>(
-      `/sports/${sportKey}/odds`,
-      { regions: 'us,eu', markets: 'h2h,totals', oddsFormat: 'decimal' },
-      apiKey
-    );
-  } catch (err) {
-    console.error('[the-odds-api] oddsFetch failed:', err);
-    return unavailable;
-  }
-
   if (!events.length) return unavailable;
 
-  // Match by team names + date when fixture context is available
-  let event: ApiOddsEvent;
-  if (homeTeamName && awayTeamName && kickoff) {
-    const matched = findMatchingEvent(events, homeTeamName, awayTeamName, kickoff);
-    if (!matched) return unavailable;
-    event = matched;
-  } else {
-    event = events[0];
-  }
+  const matched = findMatchingEvent(events, homeTeamName, awayTeamName, kickoff);
+  if (!matched) return unavailable;
+
+  const event = matched;
   const bookmakerNames = event.bookmakers.map((b) => b.title);
 
   const markets: NormalizedOdds['markets'] = {};
@@ -199,4 +193,26 @@ export async function fetchOdds(
     markets,
     availability,
   };
+}
+
+// Legacy single-fixture fetch — kept for compatibility, prefer normalizeOddsForFixture
+export async function fetchOdds(
+  fixtureId: string,
+  competition: Competition,
+  apiKey: string,
+  homeTeamName?: string,
+  awayTeamName?: string,
+  kickoff?: Date | string
+): Promise<NormalizedOdds> {
+  try {
+    const events = await fetchAllOddsEvents(competition, apiKey);
+    if (!homeTeamName || !awayTeamName || !kickoff) return {
+      fixtureId, provider: 'the-odds-api', retrievedAt: new Date(),
+      bookmakers: [], markets: {}, availability: 'NOT_AVAILABLE',
+    };
+    return normalizeOddsForFixture(fixtureId, events, homeTeamName, awayTeamName, kickoff);
+  } catch (err) {
+    console.error('[the-odds-api] oddsFetch failed:', err);
+    return { fixtureId, provider: 'the-odds-api', retrievedAt: new Date(), bookmakers: [], markets: {}, availability: 'NOT_AVAILABLE' };
+  }
 }
